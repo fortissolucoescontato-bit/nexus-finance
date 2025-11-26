@@ -14,8 +14,9 @@ import { createServerComponentClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { logout } from './actions';
+import { logout, createPersonalOrganization } from './actions';
 import { LogOut, User } from 'lucide-react';
+import { CreatePersonalOrgButton } from './create-org-button';
 
 /**
  * Componente da página do dashboard
@@ -167,11 +168,15 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="pt-4 border-t">
-                <p className="text-sm text-amber-600 dark:text-amber-400">
-                  ⚠️ Organização ainda não foi criada. Isso pode acontecer se você acabou de criar a conta.
-                  <br />
-                  <span className="text-xs">Se o problema persistir, entre em contato com o suporte.</span>
-                </p>
+                <div className="p-4 rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                  <p className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-2">
+                    ⚠️ Organização ainda não foi criada
+                  </p>
+                  <p className="text-xs text-amber-700 dark:text-amber-300 mb-3">
+                    Para começar a usar o sistema, você precisa criar sua organização pessoal.
+                  </p>
+                  <CreatePersonalOrgButton />
+                </div>
               </div>
             )}
 
