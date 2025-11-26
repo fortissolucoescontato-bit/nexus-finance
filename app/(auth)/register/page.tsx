@@ -1,16 +1,16 @@
 /**
- * Página de Login
+ * Página de Registro
  * 
- * Esta página permite que usuários façam login no sistema.
+ * Esta página permite que novos usuários criem uma conta no sistema.
  * 
  * Características:
  * - UI moderna e responsiva usando componentes Shadcn
- * - Formulário que usa Server Actions para autenticação
+ * - Formulário que usa Server Actions para registro
  * - Exibe mensagens de erro vindas da URL (searchParams)
  * - Redirecionamento automático se o usuário já estiver logado (via middleware)
  */
 
-import { login } from './actions';
+import { signup } from './actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,22 +22,23 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { AlertCircle } from 'lucide-react';
+import Link from 'next/link';
 
 /**
  * Props recebidas da URL (searchParams)
- * Usado para exibir mensagens de erro após tentativa de login falha
+ * Usado para exibir mensagens de erro após tentativa de registro falha
  */
-interface LoginPageProps {
+interface RegisterPageProps {
   searchParams: Promise<{ error?: string }>;
 }
 
 /**
- * Componente da página de login
+ * Componente da página de registro
  * 
  * Esta é uma Server Component que busca os searchParams no servidor
- * e renderiza o formulário de login
+ * e renderiza o formulário de registro
  */
-export default async function LoginPage({ searchParams }: LoginPageProps) {
+export default async function RegisterPage({ searchParams }: RegisterPageProps) {
   // Resolve os searchParams (Next.js 15 usa Promise para searchParams)
   const params = await searchParams;
   
@@ -49,10 +50,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            Entrar na sua conta
+            Criar nova conta
           </CardTitle>
           <CardDescription className="text-center">
-            Digite seu email e senha para acessar o dashboard
+            Preencha os dados abaixo para criar sua conta
           </CardDescription>
         </CardHeader>
         
@@ -65,9 +66,24 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </div>
           )}
 
-          {/* Formulário de login usando Server Action */}
-          {/* O atributo action aponta para a Server Action 'login' */}
-          <form action={login} className="space-y-4">
+          {/* Formulário de registro usando Server Action */}
+          {/* O atributo action aponta para a Server Action 'signup' */}
+          <form action={signup} className="space-y-4">
+            {/* Campo de Nome Completo */}
+            <div className="space-y-2">
+              <Label htmlFor="full_name">Nome Completo</Label>
+              <Input
+                id="full_name"
+                name="full_name"
+                type="text"
+                placeholder="João Silva"
+                required
+                autoComplete="name"
+                className="w-full"
+                minLength={2}
+              />
+            </div>
+
             {/* Campo de Email */}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -91,17 +107,33 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 type="password"
                 placeholder="••••••••"
                 required
-                autoComplete="current-password"
+                autoComplete="new-password"
                 className="w-full"
                 minLength={6}
               />
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                A senha deve ter pelo menos 6 caracteres
+              </p>
             </div>
 
             {/* Botão de Submit */}
             <Button type="submit" className="w-full" size="lg">
-              Entrar
+              Criar conta
             </Button>
           </form>
+
+          {/* Link para página de login */}
+          <div className="mt-4 text-center text-sm">
+            <span className="text-gray-600 dark:text-gray-400">
+              Já tem uma conta?{' '}
+            </span>
+            <Link
+              href="/login"
+              className="text-primary hover:underline font-medium"
+            >
+              Entrar
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -25,7 +25,7 @@ import { LogOut, User } from 'lucide-react';
  * 2. Verifica se o usuário está autenticado
  * 3. Renderiza o dashboard com as informações do usuário
  */
-export default async function DashboardPage(): Promise<JSX.Element> {
+export default async function DashboardPage() {
   // Cria o cliente Supabase para Server Components
   // Este cliente acessa os cookies da sessão automaticamente
   const supabase = await createServerComponentClient();
