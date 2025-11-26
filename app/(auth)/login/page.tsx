@@ -23,6 +23,16 @@ import {
 } from '@/components/ui/card';
 import { AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Login',
+  description: 'Faça login na sua conta do Nexus Finance',
+  robots: {
+    index: false, // Página de login não deve ser indexada
+    follow: false,
+  },
+};
 
 /**
  * Props recebidas da URL (searchParams)
@@ -60,8 +70,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <CardContent>
           {/* Exibe mensagem de erro se houver */}
           {errorMessage && (
-            <div className="mb-4 p-3 rounded-md bg-destructive/10 border border-destructive/20 flex items-center gap-2 text-sm text-destructive">
-              <AlertCircle className="h-4 w-4" />
+            <div 
+              className="mb-4 p-3 rounded-md bg-destructive/10 border border-destructive/20 flex items-center gap-2 text-sm text-destructive"
+              role="alert"
+              aria-live="polite"
+            >
+              <AlertCircle className="h-4 w-4" aria-hidden="true" />
               <span>{errorMessage}</span>
             </div>
           )}

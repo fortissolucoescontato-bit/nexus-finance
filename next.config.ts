@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: false,
   },
   
+  // Otimizações de produção
+  compress: true, // Habilita compressão gzip
+  poweredByHeader: false, // Remove header X-Powered-By
+  
   // Headers de segurança (opcional mas recomendado)
   async headers() {
     return [
@@ -39,6 +43,10 @@ const nextConfig: NextConfig = {
           {
             key: 'X-XSS-Protection',
             value: '1; mode=block',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
           },
         ],
       },

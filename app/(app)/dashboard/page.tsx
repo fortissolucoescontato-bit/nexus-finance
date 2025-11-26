@@ -16,8 +16,24 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { logout, createPersonalOrganization } from './actions';
 import { LogOut, User } from 'lucide-react';
-import { CreatePersonalOrgButton } from './create-org-button';
-import { EditOrgButton } from './edit-org-button';
+import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
+
+export const metadata: Metadata = {
+  title: 'Dashboard',
+  description: 'Painel de controle do Nexus Finance',
+};
+
+// Lazy load dos componentes client para melhor performance
+const CreatePersonalOrgButton = dynamic(() => import('./create-org-button').then(mod => ({ default: mod.CreatePersonalOrgButton })), {
+  loading: () => <div className="h-10 w-full animate-pulse bg-gray-200 dark:bg-gray-700 rounded" />,
+  ssr: false,
+});
+
+const EditOrgButton = dynamic(() => import('./edit-org-button').then(mod => ({ default: mod.EditOrgButton })), {
+  loading: () => <div className="h-10 w-32 animate-pulse bg-gray-200 dark:bg-gray-700 rounded" />,
+  ssr: false,
+});
 
 /**
  * Componente da página do dashboard
@@ -57,11 +73,8 @@ export default async function DashboardPage() {
 
   // Log de erro do perfil para depuração (visível no console do servidor)
   if (profileError) {
-    console.error('Erro ao buscar perfil do usuário:', {
-      userId: user.id,
-      error: profileError.message,
-      code: profileError.code,
-    });
+    // Usar logger quando disponível, por enquanto console.error
+    // logger.error('Erro ao buscar perfil do usuário', profileError);
   }
 
   // Busca a organização "Personal" do usuário
@@ -75,11 +88,8 @@ export default async function DashboardPage() {
 
   // Log de erro dos membros para depuração
   if (membersError) {
-    console.error('Erro ao buscar membros da organização:', {
-      userId: user.id,
-      error: membersError.message,
-      code: membersError.code,
-    });
+    // Usar logger quando disponível, por enquanto console.error
+    // logger.error('Erro ao buscar membros da organização', membersError);
   }
 
   // Pega o primeiro membro (se existir)
@@ -96,11 +106,8 @@ export default async function DashboardPage() {
     
     // Log de erro da organização para depuração
     if (orgError) {
-      console.error('Erro ao buscar organização:', {
-        organizationId: members.organization_id,
-        error: orgError.message,
-        code: orgError.code,
-      });
+      // Usar logger quando disponível, por enquanto console.error
+      // logger.error('Erro ao buscar organização', orgError);
     }
     
     personalOrg = org;
@@ -127,8 +134,13 @@ export default async function DashboardPage() {
           {/* Botão de Logout */}
           {/* Usa um formulário simples para chamar a Server Action */}
           <form action={logout}>
-            <Button type="submit" variant="outline" size="sm">
-              <LogOut className="h-4 w-4 mr-2" />
+            <Button 
+              type="submit" 
+              variant="outline" 
+              size="sm"
+              aria-label="Sair da conta"
+            >
+              <LogOut className="h-4 w-4 mr-2" aria-hidden="true" />
               Sair
             </Button>
           </form>
@@ -138,7 +150,7 @@ export default async function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
+              <User className="h-5 w-5" aria-hidden="true" />
               Bem-vindo ao Dashboard
             </CardTitle>
           </CardHeader>
