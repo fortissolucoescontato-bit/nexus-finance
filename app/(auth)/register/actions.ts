@@ -17,6 +17,8 @@
 import { createServerActionClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { registerSchema } from '@/lib/validations';
+import { logger } from '@/lib/logger';
 
 /**
  * Realiza o registro de um novo usuário usando nome, email e senha
@@ -27,29 +29,24 @@ import { redirect } from 'next/navigation';
 export async function signup(formData: FormData): Promise<void> {
   try {
     // Extrai os dados do formulário
-    // FormData.get() retorna string | null, então precisamos validar
     const fullName = formData.get('fullName');
     const email = formData.get('email');
     const password = formData.get('password');
 
-    // Validação básica (Confiança Zero - sempre validar entrada do usuário)
-    // Validação do nome completo
-    if (!fullName || typeof fullName !== 'string' || fullName.trim().length < 2) {
-      // Nome muito curto - redireciona de volta para registro com erro
-      redirect('/register?error=Nome deve ter pelo menos 2 caracteres');
+    // Validação com Zod
+    const validationResult = registerSchema.safeParse({
+      fullName: fullName || '',
+      email: email || '',
+      password: password || '',
+    });
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
+      redirect(`/register?error=${encodeURIComponent(firstError.message)}`);
+      return;
     }
 
-    // Validação do email
-    if (!email || typeof email !== 'string' || !email.includes('@')) {
-      // Email inválido - redireciona de volta para registro com erro
-      redirect('/register?error=Email inválido');
-    }
-
-    // Validação da senha
-    if (!password || typeof password !== 'string' || password.length < 6) {
-      // Senha muito curta - redireciona de volta para registro com erro
-      redirect('/register?error=Senha deve ter pelo menos 6 caracteres');
-    }
+    const { fullName: validatedFullName, email: validatedEmail, password: validatedPassword } = validationResult.data;
 
     // Validação prévia das variáveis de ambiente do Supabase
     // Isso evita erros mais tarde e fornece mensagens de erro mais claras
@@ -69,13 +66,13 @@ export async function signup(formData: FormData): Promise<void> {
     // signUp é o método para criar novos usuários com email/senha
     // Os metadados são salvos automaticamente no campo user_metadata
     const signUpResult = await supabase.auth.signUp({
-      email: email.trim().toLowerCase(), // Normaliza o email (lowercase e trim)
-      password: password,
+      email: validatedEmail, // Já validado e normalizado pelo Zod
+      password: validatedPassword,
       options: {
         // Salva o nome completo nos metadados do usuário
         // Esses dados ficam disponíveis em user.user_metadata.full_name
         data: {
-          full_name: fullName.trim(), // Remove espaços extras e salva o nome
+          full_name: validatedFullName, // Já validado e trimado pelo Zod
         },
         // Configuração de email (ajuste conforme sua configuração do Supabase)
         // Se emailRedirectTo não for fornecido, o Supabase usará a URL padrão
@@ -85,8 +82,8 @@ export async function signup(formData: FormData): Promise<void> {
     // Extrai error e data do resultado
     const { error, data } = signUpResult;
 
-    // Log do resultado para depuração (remove em produção se necessário)
-    console.log('Resultado do signUp:', {
+    // Log do resultado para depuração (apenas em desenvolvimento)
+    logger.debug('Resultado do signUp', {
       hasError: !!error,
       errorMessage: error?.message,
       hasUser: !!data?.user,
@@ -95,8 +92,8 @@ export async function signup(formData: FormData): Promise<void> {
 
     // Verifica se houve erro no registro
     if (error) {
-      // Log do erro para depuração
-      console.error('Erro no signUp do Supabase:', {
+      // Log do erro
+      logger.error('Erro no signUp do Supabase', {
         message: error.message,
         status: error.status,
         name: error.name,
@@ -116,8 +113,9 @@ export async function signup(formData: FormData): Promise<void> {
         errorMessage.includes('does not exist')
       ) {
         userFriendlyMessage = 'Erro de configuração do banco de dados. Verifique se a tabela de perfis foi criada. Veja o arquivo supabase/README.md para instruções.';
-        console.error('ERRO CRÍTICO: A tabela de perfis pode não existir ou o trigger não está configurado corretamente.');
-        console.error('Execute a migração SQL em supabase/migrations/001_create_profiles_table.sql');
+        logger.error('ERRO CRÍTICO: A tabela de perfis pode não existir ou o trigger não está configurado corretamente.', {
+          migrationFile: 'supabase/migrations/001_create_profiles_table.sql',
+        });
       }
       
       // Erro de registro (email já existe, senha inválida, etc.)
@@ -156,10 +154,7 @@ export async function signup(formData: FormData): Promise<void> {
     }
     
     // Tratamento de erro genérico para qualquer exceção não esperada
-    // Log detalhado do erro para depuração (visível no console do servidor)
-    console.error('Erro no registro:', error);
-    console.error('Tipo do erro:', typeof error);
-    console.error('Erro completo:', JSON.stringify(error, null, 2));
+    logger.error('Erro inesperado no registro', error);
     
     // Extrai mensagem de erro mais específica se possível
     let errorMessage = 'Erro inesperado. Tente novamente.';

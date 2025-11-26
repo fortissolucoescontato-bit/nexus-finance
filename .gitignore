@@ -40,3 +40,6 @@ next-env.d.ts
 *.swo
 *~
 
+# Documentation (opcional - descomente se não quiser versionar docs)
+# docs/
+

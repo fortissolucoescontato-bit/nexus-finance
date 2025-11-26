@@ -16,6 +16,8 @@
 import { createServerActionClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { loginSchema } from '@/lib/validations';
+import { logger } from '@/lib/logger';
 
 /**
  * Realiza o login do usuário usando email e senha
@@ -26,21 +28,22 @@ import { redirect } from 'next/navigation';
 export async function login(formData: FormData): Promise<void> {
   try {
     // Extrai os dados do formulário
-    // FormData.get() retorna string | null, então precisamos validar
     const email = formData.get('email');
     const password = formData.get('password');
 
-    // Validação básica (Confiança Zero - sempre validar entrada do usuário)
-    // Aqui fazemos validação simples, mas em produção você pode usar Zod para validação mais robusta
-    if (!email || typeof email !== 'string' || !email.includes('@')) {
-      // Email inválido - redireciona de volta para login com erro
-      redirect('/login?error=Email inválido');
+    // Validação com Zod
+    const validationResult = loginSchema.safeParse({
+      email: email || '',
+      password: password || '',
+    });
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
+      redirect(`/login?error=${encodeURIComponent(firstError.message)}`);
+      return;
     }
 
-    if (!password || typeof password !== 'string' || password.length < 6) {
-      // Senha muito curta - redireciona de volta para login com erro
-      redirect('/login?error=Senha deve ter pelo menos 6 caracteres');
-    }
+    const { email: validatedEmail, password: validatedPassword } = validationResult.data;
 
     // Cria o cliente Supabase para Server Actions
     // Este cliente gerencia os cookies de autenticação automaticamente
@@ -49,12 +52,12 @@ export async function login(formData: FormData): Promise<void> {
     // Tenta autenticar o usuário no Supabase
     // signInWithPassword é o método seguro para login com email/senha
     const { error, data } = await supabase.auth.signInWithPassword({
-      email: email.trim().toLowerCase(), // Normaliza o email (lowercase e trim)
-      password: password,
+      email: validatedEmail, // Já validado e normalizado pelo Zod
+      password: validatedPassword,
     });
 
-    // Log detalhado para depuração (visível no console do servidor)
-    console.log('Resultado do login:', {
+    // Log detalhado para depuração (apenas em desenvolvimento)
+    logger.debug('Resultado do login', {
       hasError: !!error,
       errorMessage: error?.message,
       errorStatus: error?.status,
@@ -65,8 +68,8 @@ export async function login(formData: FormData): Promise<void> {
 
     // Verifica se houve erro na autenticação
     if (error) {
-      // Log do erro para depuração
-      console.error('Erro no login do Supabase:', {
+      // Log do erro
+      logger.error('Erro no login do Supabase', {
         message: error.message,
         status: error.status,
         name: error.name,
@@ -91,7 +94,7 @@ export async function login(formData: FormData): Promise<void> {
     // Verifica se a autenticação foi bem-sucedida
     if (!data.user) {
       // Caso raro onde não há erro mas também não há usuário
-      console.error('Login sem erro mas sem usuário retornado');
+      logger.error('Login sem erro mas sem usuário retornado');
       redirect('/login?error=Erro ao fazer login. Tente novamente.');
       return;
     }
@@ -99,7 +102,9 @@ export async function login(formData: FormData): Promise<void> {
     // Verifica se o email foi confirmado (se a confirmação estiver habilitada)
     // Nota: Em desenvolvimento, você pode desativar a confirmação de email
     if (!data.user.email_confirmed_at) {
-      console.warn('Usuário tentou fazer login mas email não foi confirmado:', data.user.email);
+      logger.warn('Usuário tentou fazer login mas email não foi confirmado', {
+        email: data.user.email,
+      });
       // Não bloqueia o login, mas registra o aviso
       // Se você quiser bloquear, descomente a linha abaixo:
       // redirect('/login?error=Por favor, confirme seu email antes de fazer login.');
@@ -128,10 +133,7 @@ export async function login(formData: FormData): Promise<void> {
     }
     
     // Tratamento de erro genérico para qualquer exceção não esperada
-    // Log detalhado do erro para depuração (visível no console do servidor)
-    console.error('Erro no login:', error);
-    console.error('Tipo do erro:', typeof error);
-    console.error('Erro completo:', JSON.stringify(error, null, 2));
+    logger.error('Erro inesperado no login', error);
     
     // Extrai mensagem de erro mais específica se possível
     let errorMessage = 'Erro inesperado. Tente novamente.';

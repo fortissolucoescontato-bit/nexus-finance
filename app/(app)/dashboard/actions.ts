@@ -10,6 +10,8 @@
 import { createServerActionClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { createOrganizationSchema, updateOrganizationSchema } from '@/lib/validations';
+import { logger } from '@/lib/logger';
 
 /**
  * Realiza o logout do usuário
@@ -36,7 +38,7 @@ export async function logout(): Promise<void> {
   } catch (error) {
     // Em caso de erro, ainda tenta redirecionar para login
     // O usuário pode estar deslogado mesmo se houver erro
-    console.error('Erro no logout:', error);
+    logger.error('Erro no logout', error);
     redirect('/login');
   }
 }
@@ -72,20 +74,20 @@ export async function createPersonalOrganization(
       };
     }
 
-    // Valida o nome da organização
-    const trimmedName = organizationName?.trim() || '';
-    if (trimmedName.length < 2) {
+    // Valida o nome da organização com Zod
+    const validationResult = createOrganizationSchema.safeParse({
+      organizationName: organizationName || '',
+    });
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
       return {
         success: false,
-        error: 'O nome da organização deve ter pelo menos 2 caracteres',
+        error: firstError.message,
       };
     }
-    if (trimmedName.length > 100) {
-      return {
-        success: false,
-        error: 'O nome da organização deve ter no máximo 100 caracteres',
-      };
-    }
+
+    const { organizationName: trimmedName } = validationResult.data;
 
     // Verifica se o usuário já tem uma organização
     const { data: existingMembers } = await supabase
@@ -113,7 +115,7 @@ export async function createPersonalOrganization(
       });
 
     if (profileError) {
-      console.error('Erro ao criar/atualizar perfil:', profileError);
+      logger.error('Erro ao criar/atualizar perfil', profileError);
       // Continua mesmo se houver erro no perfil
     }
 
@@ -145,7 +147,7 @@ export async function createPersonalOrganization(
       .single();
 
     if (orgError) {
-      console.error('Erro ao criar organização:', orgError);
+      logger.error('Erro ao criar organização', orgError);
       return {
         success: false,
         error: orgError.message || 'Erro ao criar organização',
@@ -162,7 +164,7 @@ export async function createPersonalOrganization(
       });
 
     if (memberError) {
-      console.error('Erro ao adicionar membro:', memberError);
+      logger.error('Erro ao adicionar membro', memberError);
       return {
         success: false,
         error: memberError.message || 'Erro ao adicionar membro à organização',
@@ -176,7 +178,7 @@ export async function createPersonalOrganization(
     };
   } catch (error) {
     // Tratamento de erro genérico
-    console.error('Erro ao criar organização:', error);
+    logger.error('Erro inesperado ao criar organização', error);
     
     let errorMessage = 'Erro inesperado ao criar organização';
     if (error instanceof Error) {
@@ -219,20 +221,21 @@ export async function updateOrganization(
       };
     }
 
-    // Valida o novo nome
-    const trimmedName = newName?.trim() || '';
-    if (trimmedName.length < 2) {
+    // Valida o novo nome com Zod
+    const validationResult = updateOrganizationSchema.safeParse({
+      organizationId,
+      newName: newName || '',
+    });
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
       return {
         success: false,
-        error: 'O nome da organização deve ter pelo menos 2 caracteres',
+        error: firstError.message,
       };
     }
-    if (trimmedName.length > 100) {
-      return {
-        success: false,
-        error: 'O nome da organização deve ter no máximo 100 caracteres',
-      };
-    }
+
+    const { newName: trimmedName } = validationResult.data;
 
     // Verifica se o usuário é owner da organização
     const { data: member, error: memberError } = await supabase
@@ -244,7 +247,7 @@ export async function updateOrganization(
       .single();
 
     if (memberError || !member) {
-      console.error('Erro ao verificar permissão:', {
+      logger.error('Erro ao verificar permissão', {
         memberError,
         member,
         userId: user.id,
@@ -256,7 +259,7 @@ export async function updateOrganization(
       };
     }
 
-    console.log('Permissão verificada. Atualizando organização:', {
+    logger.debug('Permissão verificada. Atualizando organização', {
       organizationId,
       newName: trimmedName,
       userId: user.id,
@@ -284,7 +287,7 @@ export async function updateOrganization(
       .single();
 
     if (updateError) {
-      console.error('Erro ao atualizar organização:', {
+      logger.error('Erro ao atualizar organização', {
         error: updateError,
         message: updateError.message,
         code: updateError.code,
@@ -308,7 +311,7 @@ export async function updateOrganization(
       };
     }
 
-    console.log('Organização atualizada com sucesso:', updatedOrg);
+    logger.debug('Organização atualizada com sucesso', updatedOrg);
 
     // Revalida o cache do dashboard
     revalidatePath('/dashboard');
@@ -317,7 +320,7 @@ export async function updateOrganization(
       success: true,
     };
   } catch (error) {
-    console.error('Erro ao atualizar organização:', error);
+    logger.error('Erro inesperado ao atualizar organização', error);
     
     let errorMessage = 'Erro inesperado ao atualizar organização';
     if (error instanceof Error) {
