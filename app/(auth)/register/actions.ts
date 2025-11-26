@@ -51,6 +51,16 @@ export async function signup(formData: FormData): Promise<void> {
       redirect('/register?error=Senha deve ter pelo menos 6 caracteres');
     }
 
+    // Validação prévia das variáveis de ambiente do Supabase
+    // Isso evita erros mais tarde e fornece mensagens de erro mais claras
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('Variáveis de ambiente do Supabase não configuradas');
+      redirect('/register?error=Configuração do servidor incorreta. Entre em contato com o suporte.');
+    }
+
     // Cria o cliente Supabase para Server Actions
     // Este cliente gerencia os cookies de autenticação automaticamente
     const supabase = await createServerActionClient();
@@ -58,7 +68,7 @@ export async function signup(formData: FormData): Promise<void> {
     // Tenta criar o usuário no Supabase
     // signUp é o método para criar novos usuários com email/senha
     // Os metadados são salvos automaticamente no campo user_metadata
-    const { error, data } = await supabase.auth.signUp({
+    const signUpResult = await supabase.auth.signUp({
       email: email.trim().toLowerCase(), // Normaliza o email (lowercase e trim)
       password: password,
       options: {
@@ -67,14 +77,35 @@ export async function signup(formData: FormData): Promise<void> {
         data: {
           full_name: fullName.trim(), // Remove espaços extras e salva o nome
         },
+        // Configuração de email (ajuste conforme sua configuração do Supabase)
+        // Se emailRedirectTo não for fornecido, o Supabase usará a URL padrão
       },
+    });
+
+    // Extrai error e data do resultado
+    const { error, data } = signUpResult;
+
+    // Log do resultado para depuração (remove em produção se necessário)
+    console.log('Resultado do signUp:', {
+      hasError: !!error,
+      errorMessage: error?.message,
+      hasUser: !!data?.user,
+      userEmail: data?.user?.email,
     });
 
     // Verifica se houve erro no registro
     if (error) {
+      // Log do erro para depuração
+      console.error('Erro no signUp do Supabase:', {
+        message: error.message,
+        status: error.status,
+        name: error.name,
+      });
+      
       // Erro de registro (email já existe, senha inválida, etc.)
       // Redireciona de volta para registro com mensagem de erro amigável
-      redirect(`/register?error=${encodeURIComponent(error.message || 'Erro ao criar conta. Tente novamente.')}`);
+      const errorMsg = error.message || 'Erro ao criar conta. Tente novamente.';
+      redirect(`/register?error=${encodeURIComponent(errorMsg)}`);
     }
 
     // Verifica se o usuário foi criado com sucesso
@@ -93,12 +124,52 @@ export async function signup(formData: FormData): Promise<void> {
     // o usuário pode precisar confirmar o email antes de acessar o dashboard
     redirect('/dashboard');
   } catch (error) {
-    // Tratamento de erro genérico para qualquer exceção não esperada
-    // Log do erro seria feito aqui em produção
-    console.error('Erro no registro:', error);
+    // Verifica se o erro é um redirect do Next.js
+    // redirect() lança uma exceção especial (NEXT_REDIRECT) que não deve ser tratada como erro
+    // Se for um redirect, re-lança o erro para que o Next.js processe corretamente
+    if (
+      error &&
+      typeof error === 'object' &&
+      'digest' in error &&
+      typeof error.digest === 'string' &&
+      error.digest.includes('NEXT_REDIRECT')
+    ) {
+      // Erro do tipo NEXT_REDIRECT - re-lança para que o Next.js processe o redirect
+      throw error;
+    }
     
-    // Redireciona com mensagem de erro genérica
-    redirect('/register?error=Erro inesperado. Tente novamente.');
+    // Tratamento de erro genérico para qualquer exceção não esperada
+    // Log detalhado do erro para depuração (visível no console do servidor)
+    console.error('Erro no registro:', error);
+    console.error('Tipo do erro:', typeof error);
+    console.error('Erro completo:', JSON.stringify(error, null, 2));
+    
+    // Extrai mensagem de erro mais específica se possível
+    let errorMessage = 'Erro inesperado. Tente novamente.';
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (error && typeof error === 'object' && 'message' in error) {
+      errorMessage = String(error.message);
+    }
+    
+    // Verifica se o erro é relacionado a variáveis de ambiente do Supabase
+    if (
+      errorMessage.includes('Variáveis de ambiente') ||
+      errorMessage.includes('NEXT_PUBLIC_SUPABASE') ||
+      errorMessage.includes('Supabase')
+    ) {
+      redirect('/register?error=Configuração do servidor incorreta. Entre em contato com o suporte.');
+      return;
+    }
+    
+    // Redireciona com mensagem de erro mais específica para o usuário
+    // Limita o tamanho da mensagem para evitar URLs muito longas
+    const safeMessage = errorMessage.length > 100 
+      ? 'Erro ao processar a solicitação. Verifique os dados e tente novamente.'
+      : errorMessage;
+      
+    redirect(`/register?error=${encodeURIComponent(safeMessage)}`);
   }
 }
 
