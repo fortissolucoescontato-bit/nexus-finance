@@ -173,7 +173,8 @@ export default async function DashboardPage() {
                     ⚠️ Organização ainda não foi criada
                   </p>
                   <p className="text-xs text-amber-700 dark:text-amber-300 mb-3">
-                    Para começar a usar o sistema, você precisa criar sua organização pessoal.
+                    Para começar a usar o sistema, você precisa criar sua organização. 
+                    Escolha um nome personalizado para sua organização.
                   </p>
                   <CreatePersonalOrgButton />
                 </div>

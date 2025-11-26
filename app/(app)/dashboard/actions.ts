@@ -42,14 +42,18 @@ export async function logout(): Promise<void> {
 }
 
 /**
- * Cria a organização "Personal" para o usuário atual
+ * Cria uma organização para o usuário atual
  * 
- * Esta função é chamada automaticamente quando o usuário acessa o dashboard
- * e não tem uma organização. Cria a organização e adiciona o usuário como owner.
+ * Esta função é chamada quando o usuário acessa o dashboard
+ * e não tem uma organização. Cria a organização com o nome escolhido
+ * e adiciona o usuário como owner.
  * 
+ * @param organizationName - Nome da organização escolhido pelo usuário
  * @returns Promise<{ success: boolean; error?: string }>
  */
-export async function createPersonalOrganization(): Promise<{ success: boolean; error?: string }> {
+export async function createPersonalOrganization(
+  organizationName: string
+): Promise<{ success: boolean; error?: string }> {
   try {
     // Cria o cliente Supabase para Server Actions
     const supabase = await createServerActionClient();
@@ -65,6 +69,21 @@ export async function createPersonalOrganization(): Promise<{ success: boolean; 
       return {
         success: false,
         error: 'Usuário não autenticado',
+      };
+    }
+
+    // Valida o nome da organização
+    const trimmedName = organizationName?.trim() || '';
+    if (trimmedName.length < 2) {
+      return {
+        success: false,
+        error: 'O nome da organização deve ter pelo menos 2 caracteres',
+      };
+    }
+    if (trimmedName.length > 100) {
+      return {
+        success: false,
+        error: 'O nome da organização deve ter no máximo 100 caracteres',
       };
     }
 
@@ -98,17 +117,29 @@ export async function createPersonalOrganization(): Promise<{ success: boolean; 
       // Continua mesmo se houver erro no perfil
     }
 
-    // Cria a organização "Personal"
+    // Cria a organização com o nome escolhido pelo usuário
     // Gera um UUID v4 usando a API nativa do Node.js
     // No Node.js 18+ e Next.js 15, crypto.randomUUID() está disponível globalmente
     const orgId = crypto.randomUUID();
+    
+    // Gera um slug único baseado no nome e ID do usuário
+    // Remove caracteres especiais e espaços, converte para lowercase
+    const slugBase = trimmedName
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+      .replace(/[^a-z0-9]+/g, '-') // Substitui não-alfanuméricos por hífen
+      .replace(/^-+|-+$/g, ''); // Remove hífens do início/fim
+    
+    const slug = `${slugBase}-${user.id.slice(0, 8)}`;
+    
     const { data: org, error: orgError } = await supabase
       .from('organizations')
       .insert({
         id: orgId,
-        name: 'Personal',
+        name: trimmedName,
         type: 'personal',
-        slug: `personal-${user.id}`,
+        slug: slug,
       })
       .select()
       .single();
