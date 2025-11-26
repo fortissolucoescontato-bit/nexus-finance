@@ -53,17 +53,56 @@ export async function login(formData: FormData): Promise<void> {
       password: password,
     });
 
+    // Log detalhado para depuração (visível no console do servidor)
+    console.log('Resultado do login:', {
+      hasError: !!error,
+      errorMessage: error?.message,
+      errorStatus: error?.status,
+      hasUser: !!data?.user,
+      userEmail: data?.user?.email,
+      userConfirmed: data?.user?.email_confirmed_at ? 'Sim' : 'Não',
+    });
+
     // Verifica se houve erro na autenticação
     if (error) {
+      // Log do erro para depuração
+      console.error('Erro no login do Supabase:', {
+        message: error.message,
+        status: error.status,
+        name: error.name,
+      });
+      
+      // Tratamento específico para erro de email não confirmado
+      if (
+        error.message?.includes('Email not confirmed') ||
+        error.message?.includes('email not confirmed') ||
+        error.status === 400
+      ) {
+        redirect('/login?error=Por favor, confirme seu email antes de fazer login. Verifique sua caixa de entrada.');
+        return;
+      }
+      
       // Erro de autenticação (credenciais inválidas, usuário não encontrado, etc.)
       // Redireciona de volta para login com mensagem de erro amigável
       redirect(`/login?error=${encodeURIComponent(error.message || 'Credenciais inválidas')}`);
+      return;
     }
 
     // Verifica se a autenticação foi bem-sucedida
     if (!data.user) {
       // Caso raro onde não há erro mas também não há usuário
+      console.error('Login sem erro mas sem usuário retornado');
       redirect('/login?error=Erro ao fazer login. Tente novamente.');
+      return;
+    }
+    
+    // Verifica se o email foi confirmado (se a confirmação estiver habilitada)
+    // Nota: Em desenvolvimento, você pode desativar a confirmação de email
+    if (!data.user.email_confirmed_at) {
+      console.warn('Usuário tentou fazer login mas email não foi confirmado:', data.user.email);
+      // Não bloqueia o login, mas registra o aviso
+      // Se você quiser bloquear, descomente a linha abaixo:
+      // redirect('/login?error=Por favor, confirme seu email antes de fazer login.');
     }
 
     // Login bem-sucedido!
@@ -74,12 +113,62 @@ export async function login(formData: FormData): Promise<void> {
     // O middleware garantirá que o usuário tem acesso à rota protegida
     redirect('/dashboard');
   } catch (error) {
-    // Tratamento de erro genérico para qualquer exceção não esperada
-    // Log do erro seria feito aqui em produção
-    console.error('Erro no login:', error);
+    // Verifica se o erro é um redirect do Next.js
+    // redirect() lança uma exceção especial (NEXT_REDIRECT) que não deve ser tratada como erro
+    // Se for um redirect, re-lança o erro para que o Next.js processe corretamente
+    if (
+      error &&
+      typeof error === 'object' &&
+      'digest' in error &&
+      typeof error.digest === 'string' &&
+      error.digest.includes('NEXT_REDIRECT')
+    ) {
+      // Erro do tipo NEXT_REDIRECT - re-lança para que o Next.js processe o redirect
+      throw error;
+    }
     
-    // Redireciona com mensagem de erro genérica
-    redirect('/login?error=Erro inesperado. Tente novamente.');
+    // Tratamento de erro genérico para qualquer exceção não esperada
+    // Log detalhado do erro para depuração (visível no console do servidor)
+    console.error('Erro no login:', error);
+    console.error('Tipo do erro:', typeof error);
+    console.error('Erro completo:', JSON.stringify(error, null, 2));
+    
+    // Extrai mensagem de erro mais específica se possível
+    let errorMessage = 'Erro inesperado. Tente novamente.';
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (error && typeof error === 'object' && 'message' in error) {
+      errorMessage = String(error.message);
+    }
+    
+    // Verifica se o erro é relacionado a variáveis de ambiente do Supabase
+    if (
+      errorMessage.includes('Variáveis de ambiente') ||
+      errorMessage.includes('NEXT_PUBLIC_SUPABASE') ||
+      errorMessage.includes('Supabase')
+    ) {
+      redirect('/login?error=Configuração do servidor incorreta. Entre em contato com o suporte.');
+      return;
+    }
+    
+    // Verifica se é erro de confirmação de email
+    if (
+      errorMessage.includes('Email not confirmed') ||
+      errorMessage.includes('email not confirmed') ||
+      errorMessage.includes('confirmation')
+    ) {
+      redirect('/login?error=Por favor, confirme seu email antes de fazer login. Verifique sua caixa de entrada.');
+      return;
+    }
+    
+    // Redireciona com mensagem de erro mais específica para o usuário
+    // Limita o tamanho da mensagem para evitar URLs muito longas
+    const safeMessage = errorMessage.length > 100 
+      ? 'Erro ao processar a solicitação. Verifique os dados e tente novamente.'
+      : errorMessage;
+      
+    redirect(`/login?error=${encodeURIComponent(safeMessage)}`);
   }
 }
 
