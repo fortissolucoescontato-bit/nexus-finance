@@ -117,64 +117,57 @@ export async function createPersonalOrganization(
       // Continua mesmo se houver erro no perfil
     }
 
-    // Usa função stored procedure para criar organização
-    // Isso bypassa RLS e cria organização + membro em uma transação atômica
-    console.log('Tentando criar organização via RPC:', {
-      userId: user.id,
-      organizationName: trimmedName,
-    });
-
-    const { data: orgIdData, error: orgError } = await supabase
-      .rpc('create_personal_organization', {
-        p_user_id: user.id,
-        p_organization_name: trimmedName,
-      });
-
-    console.log('Resultado do RPC:', {
-      hasError: !!orgError,
-      errorMessage: orgError?.message,
-      errorCode: orgError?.code,
-      errorDetails: orgError?.details,
-      errorHint: orgError?.hint,
-      data: orgIdData,
-    });
+    // Cria a organização com o nome escolhido pelo usuário
+    // Gera um UUID v4 usando a API nativa do Node.js
+    // No Node.js 18+ e Next.js 15, crypto.randomUUID() está disponível globalmente
+    const orgId = crypto.randomUUID();
+    
+    // Gera um slug único baseado no nome e ID do usuário
+    // Remove caracteres especiais e espaços, converte para lowercase
+    const slugBase = trimmedName
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+      .replace(/[^a-z0-9]+/g, '-') // Substitui não-alfanuméricos por hífen
+      .replace(/^-+|-+$/g, ''); // Remove hífens do início/fim
+    
+    const slug = `${slugBase}-${user.id.slice(0, 8)}`;
+    
+    const { data: org, error: orgError } = await supabase
+      .from('organizations')
+      .insert({
+        id: orgId,
+        name: trimmedName,
+        type: 'personal',
+        slug: slug,
+      })
+      .select()
+      .single();
 
     if (orgError) {
-      console.error('Erro completo ao criar organização:', {
-        message: orgError.message,
-        code: orgError.code,
-        details: orgError.details,
-        hint: orgError.hint,
-        status: orgError.status,
+      console.error('Erro ao criar organização:', orgError);
+      return {
+        success: false,
+        error: orgError.message || 'Erro ao criar organização',
+      };
+    }
+
+    // Adiciona o usuário como owner da organização
+    const { error: memberError } = await supabase
+      .from('organization_members')
+      .insert({
+        organization_id: orgId,
+        user_id: user.id,
+        role: 'owner',
       });
-      
-      // Mensagem de erro mais específica
-      let errorMessage = orgError.message || 'Erro ao criar organização';
-      
-      // Se a função não existir
-      if (orgError.message?.includes('function') || orgError.code === '42883') {
-        errorMessage = 'Função não encontrada. Execute a migração SQL no Supabase.';
-      }
-      
+
+    if (memberError) {
+      console.error('Erro ao adicionar membro:', memberError);
       return {
         success: false,
-        error: errorMessage,
+        error: memberError.message || 'Erro ao adicionar membro à organização',
       };
     }
-
-    // A função retorna o ID da organização criada (ou existente)
-    const orgId = orgIdData;
-    
-    if (!orgId) {
-      console.error('Organização criada mas ID não retornado');
-      return {
-        success: false,
-        error: 'Erro ao obter ID da organização criada',
-      };
-    }
-
-    console.log('Organização criada com sucesso:', { orgId });
-
     // Revalida o cache do dashboard para mostrar a organização
     revalidatePath('/dashboard');
 
