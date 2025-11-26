@@ -21,14 +21,14 @@ import { redirect } from 'next/navigation';
 /**
  * Realiza o registro de um novo usuário usando nome, email e senha
  * 
- * @param formData - FormData contendo full_name, email e password do formulário
+ * @param formData - FormData contendo fullName, email e password do formulário
  * @returns Promise<void> - Redireciona automaticamente após registro
  */
 export async function signup(formData: FormData): Promise<void> {
   try {
     // Extrai os dados do formulário
     // FormData.get() retorna string | null, então precisamos validar
-    const fullName = formData.get('full_name');
+    const fullName = formData.get('fullName');
     const email = formData.get('email');
     const password = formData.get('password');
 

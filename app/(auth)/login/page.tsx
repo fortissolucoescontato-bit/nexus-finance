@@ -22,6 +22,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { AlertCircle } from 'lucide-react';
+import Link from 'next/link';
 
 /**
  * Props recebidas da URL (searchParams)
@@ -102,6 +103,19 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               Entrar
             </Button>
           </form>
+
+          {/* Link para página de registro */}
+          <div className="mt-4 text-center text-sm">
+            <span className="text-gray-600 dark:text-gray-400">
+              Não tem conta?{' '}
+            </span>
+            <Link
+              href="/register"
+              className="text-primary hover:underline font-medium"
+            >
+              Cadastre-se
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

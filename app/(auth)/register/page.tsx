@@ -71,10 +71,10 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
           <form action={signup} className="space-y-4">
             {/* Campo de Nome Completo */}
             <div className="space-y-2">
-              <Label htmlFor="full_name">Nome Completo</Label>
+              <Label htmlFor="fullName">Nome Completo</Label>
               <Input
-                id="full_name"
-                name="full_name"
+                id="fullName"
+                name="fullName"
                 type="text"
                 placeholder="João Silva"
                 required
@@ -118,7 +118,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 
             {/* Botão de Submit */}
             <Button type="submit" className="w-full" size="lg">
-              Criar conta
+              Criar Conta Grátis
             </Button>
           </form>
 
