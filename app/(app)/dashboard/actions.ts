@@ -244,11 +244,23 @@ export async function updateOrganization(
       .single();
 
     if (memberError || !member) {
+      console.error('Erro ao verificar permissão:', {
+        memberError,
+        member,
+        userId: user.id,
+        organizationId,
+      });
       return {
         success: false,
         error: 'Você não tem permissão para editar esta organização',
       };
     }
+
+    console.log('Permissão verificada. Atualizando organização:', {
+      organizationId,
+      newName: trimmedName,
+      userId: user.id,
+    });
 
     // Gera novo slug baseado no novo nome
     const slugBase = trimmedName
@@ -261,21 +273,42 @@ export async function updateOrganization(
     const newSlug = `${slugBase}-${user.id.slice(0, 8)}`;
 
     // Atualiza a organização
-    const { error: updateError } = await supabase
+    const { data: updatedOrg, error: updateError } = await supabase
       .from('organizations')
       .update({
         name: trimmedName,
         slug: newSlug,
       })
-      .eq('id', organizationId);
+      .eq('id', organizationId)
+      .select()
+      .single();
 
     if (updateError) {
-      console.error('Erro ao atualizar organização:', updateError);
+      console.error('Erro ao atualizar organização:', {
+        error: updateError,
+        message: updateError.message,
+        code: updateError.code,
+        details: updateError.details,
+        hint: updateError.hint,
+        organizationId,
+        userId: user.id,
+      });
+      
+      // Mensagem de erro mais específica
+      let errorMessage = 'Erro ao atualizar organização';
+      if (updateError.message?.includes('row-level security') || updateError.code === '42501') {
+        errorMessage = 'Permissão negada. Verifique se você é owner da organização.';
+      } else if (updateError.message) {
+        errorMessage = updateError.message;
+      }
+      
       return {
         success: false,
-        error: updateError.message || 'Erro ao atualizar organização',
+        error: errorMessage,
       };
     }
+
+    console.log('Organização atualizada com sucesso:', updatedOrg);
 
     // Revalida o cache do dashboard
     revalidatePath('/dashboard');

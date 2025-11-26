@@ -57,12 +57,19 @@ export function EditOrgButton({ organizationId, currentName }: EditOrgButtonProp
       const result = await updateOrganization(organizationId, trimmedName);
 
       if (result.success) {
+        // Atualiza o estado local com o novo nome
+        setOrganizationName(trimmedName);
         // Recarrega a página para mostrar o nome atualizado
         router.refresh();
-        setShowForm(false);
+        // Aguarda um pouco antes de fechar o formulário para garantir que a atualização foi vista
+        setTimeout(() => {
+          setShowForm(false);
+        }, 500);
       } else {
         // Mostra mensagem de erro
-        setError(result.error || 'Erro ao atualizar organização');
+        const errorMsg = result.error || 'Erro ao atualizar organização';
+        console.error('Erro ao atualizar:', errorMsg);
+        setError(errorMsg);
       }
     } catch (err) {
       // Tratamento de erro genérico
