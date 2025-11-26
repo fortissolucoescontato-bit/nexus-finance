@@ -12,6 +12,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createOrganizationSchema, updateOrganizationSchema } from '@/lib/validations';
 import { logger } from '@/lib/logger';
+import { generateSlug } from '@/lib/slug';
 
 /**
  * Realiza o logout do usuário
@@ -125,15 +126,7 @@ export async function createPersonalOrganization(
     const orgId = crypto.randomUUID();
     
     // Gera um slug único baseado no nome e ID do usuário
-    // Remove caracteres especiais e espaços, converte para lowercase
-    const slugBase = trimmedName
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove acentos
-      .replace(/[^a-z0-9]+/g, '-') // Substitui não-alfanuméricos por hífen
-      .replace(/^-+|-+$/g, ''); // Remove hífens do início/fim
-    
-    const slug = `${slugBase}-${user.id.slice(0, 8)}`;
+    const slug = generateSlug(trimmedName, user.id);
     
     const { data: org, error: orgError } = await supabase
       .from('organizations')
@@ -266,14 +259,7 @@ export async function updateOrganization(
     });
 
     // Gera novo slug baseado no novo nome
-    const slugBase = trimmedName
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove acentos
-      .replace(/[^a-z0-9]+/g, '-') // Substitui não-alfanuméricos por hífen
-      .replace(/^-+|-+$/g, ''); // Remove hífens do início/fim
-    
-    const newSlug = `${slugBase}-${user.id.slice(0, 8)}`;
+    const newSlug = generateSlug(trimmedName, user.id);
 
     // Atualiza a organização
     const { data: updatedOrg, error: updateError } = await supabase

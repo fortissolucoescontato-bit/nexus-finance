@@ -12,7 +12,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createPersonalOrganization } from './actions';
-import { Loader2, Building2 } from 'lucide-react';
+import { Building2 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading';
 import { useRouter } from 'next/navigation';
 
 export function CreatePersonalOrgButton() {
@@ -112,7 +113,7 @@ export function CreatePersonalOrgButton() {
         >
           {isLoading ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <LoadingSpinner size="sm" className="mr-2" />
               Criando...
             </>
           ) : (
