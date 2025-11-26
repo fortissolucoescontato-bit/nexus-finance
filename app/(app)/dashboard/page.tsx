@@ -44,10 +44,70 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  // Extrai o email do usuário para exibir na tela
-  // O email está disponível em user.email
-  const userEmail = user.email || 'Usuário';
+  // Busca o perfil do usuário na tabela profiles
+  // Isso nos dá acesso ao full_name e outras informações adicionais
+  // Usamos try/catch e verificação manual ao invés de .single() para evitar erros
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('full_name, email')
+    .eq('id', user.id)
+    .maybeSingle(); // maybeSingle() retorna null se não encontrar, ao invés de lançar erro
 
+  // Log de erro do perfil para depuração (visível no console do servidor)
+  if (profileError) {
+    console.error('Erro ao buscar perfil do usuário:', {
+      userId: user.id,
+      error: profileError.message,
+      code: profileError.code,
+    });
+  }
+
+  // Busca a organização "Personal" do usuário
+  // Todo usuário tem uma organização personal criada automaticamente
+  // Primeiro busca os membros, depois busca a organização
+  const { data: membersData, error: membersError } = await supabase
+    .from('organization_members')
+    .select('organization_id, role')
+    .eq('user_id', user.id)
+    .limit(1);
+
+  // Log de erro dos membros para depuração
+  if (membersError) {
+    console.error('Erro ao buscar membros da organização:', {
+      userId: user.id,
+      error: membersError.message,
+      code: membersError.code,
+    });
+  }
+
+  // Pega o primeiro membro (se existir)
+  const members = membersData && membersData.length > 0 ? membersData[0] : null;
+
+  // Se encontrou um membro, busca a organização
+  let personalOrg = null;
+  if (members?.organization_id) {
+    const { data: org, error: orgError } = await supabase
+      .from('organizations')
+      .select('id, name, type, slug')
+      .eq('id', members.organization_id)
+      .maybeSingle(); // maybeSingle() retorna null se não encontrar
+    
+    // Log de erro da organização para depuração
+    if (orgError) {
+      console.error('Erro ao buscar organização:', {
+        organizationId: members.organization_id,
+        error: orgError.message,
+        code: orgError.code,
+      });
+    }
+    
+    personalOrg = org;
+  }
+
+  // Extrai o nome do perfil ou usa o email como fallback
+  const userName = profile?.full_name || user.email || 'Usuário';
+  const userEmail = profile?.email || user.email || 'Usuário';
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -86,9 +146,34 @@ export default async function DashboardPage() {
                 Você está logado como:
               </p>
               <p className="text-lg font-semibold text-gray-900 dark:text-white mt-1">
+                {userName}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
                 {userEmail}
               </p>
             </div>
+
+            {personalOrg ? (
+              <div className="pt-4 border-t">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Organização Ativa:
+                </p>
+                <p className="text-base font-semibold text-gray-900 dark:text-white mt-1">
+                  {personalOrg.name}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                  Tipo: {personalOrg.type === 'personal' ? 'Pessoal' : 'Empresarial'}
+                </p>
+              </div>
+            ) : (
+              <div className="pt-4 border-t">
+                <p className="text-sm text-amber-600 dark:text-amber-400">
+                  ⚠️ Organização ainda não foi criada. Isso pode acontecer se você acabou de criar a conta.
+                  <br />
+                  <span className="text-xs">Se o problema persistir, entre em contato com o suporte.</span>
+                </p>
+              </div>
+            )}
 
             <div className="pt-4 border-t">
               <p className="text-sm text-gray-600 dark:text-gray-400">

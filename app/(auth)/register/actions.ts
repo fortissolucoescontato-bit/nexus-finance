@@ -102,10 +102,27 @@ export async function signup(formData: FormData): Promise<void> {
         name: error.name,
       });
       
+      // Tratamento específico para erro de banco de dados
+      // Isso geralmente acontece se a tabela de perfis ou trigger não existirem
+      const errorMessage = error.message || '';
+      let userFriendlyMessage = error.message || 'Erro ao criar conta. Tente novamente.';
+      
+      // Verifica se é erro relacionado ao banco de dados
+      if (
+        errorMessage.includes('Database error') ||
+        errorMessage.includes('saving new user') ||
+        errorMessage.includes('permission denied') ||
+        errorMessage.includes('relation') ||
+        errorMessage.includes('does not exist')
+      ) {
+        userFriendlyMessage = 'Erro de configuração do banco de dados. Verifique se a tabela de perfis foi criada. Veja o arquivo supabase/README.md para instruções.';
+        console.error('ERRO CRÍTICO: A tabela de perfis pode não existir ou o trigger não está configurado corretamente.');
+        console.error('Execute a migração SQL em supabase/migrations/001_create_profiles_table.sql');
+      }
+      
       // Erro de registro (email já existe, senha inválida, etc.)
       // Redireciona de volta para registro com mensagem de erro amigável
-      const errorMsg = error.message || 'Erro ao criar conta. Tente novamente.';
-      redirect(`/register?error=${encodeURIComponent(errorMsg)}`);
+      redirect(`/register?error=${encodeURIComponent(userFriendlyMessage)}`);
     }
 
     // Verifica se o usuário foi criado com sucesso
