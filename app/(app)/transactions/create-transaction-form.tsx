@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { createTransaction } from './actions';
 import { LoadingSpinner } from '@/components/ui/loading';
 import { logger } from '@/lib/logger';
+import { Plus } from 'lucide-react';
 
 interface Account {
   id: string;
