@@ -16,8 +16,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'pt_BR',
     siteName: 'Nexus Finance',
-    title: 'Nexus Finance - Gestão Financeira',
-    description: 'Sistema de gestão financeira multi-tenant',
+  title: 'Nexus Finance - Gestão Financeira',
+  description: 'Sistema de gestão financeira multi-tenant',
   },
   robots: {
     index: true,
@@ -49,7 +49,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className="antialiased">
         <ErrorBoundary>
-          {children}
+        {children}
         </ErrorBoundary>
       </body>
     </html>

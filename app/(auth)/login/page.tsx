@@ -21,7 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 
