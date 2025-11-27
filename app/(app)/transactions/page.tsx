@@ -62,7 +62,7 @@ export default async function TransactionsPage() {
     .order('name', { ascending: true });
 
   // Busca todas as transações da organização
-  const { data: transactions, error: transactionsError } = await supabase
+  const { data: transactionsData, error: transactionsError } = await supabase
     .from('transactions')
     .select(`
       id,
@@ -82,6 +82,14 @@ export default async function TransactionsPage() {
     .order('date', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(100); // Limita a 100 transações mais recentes
+
+  // Transforma os dados do Supabase para o formato esperado
+  // O Supabase retorna arrays nos joins, então precisamos pegar o primeiro elemento
+  const transactions = transactionsData?.map((t: any) => ({
+    ...t,
+    accounts: Array.isArray(t.accounts) ? t.accounts[0] || null : t.accounts,
+    categories: Array.isArray(t.categories) ? t.categories[0] || null : t.categories,
+  })) || [];
 
   if (transactionsError) {
     console.error('Erro ao buscar transações:', transactionsError);
@@ -143,7 +151,7 @@ export default async function TransactionsPage() {
           </CardHeader>
           <CardContent>
             <TransactionsList 
-              transactions={transactions || []} 
+              transactions={transactions} 
               organizationId={organizationId}
               accounts={accounts || []}
               categories={categories || []}
