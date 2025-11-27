@@ -200,7 +200,7 @@ export async function updateTransaction(
     // Busca a transação atual para obter o valor antigo
     const { data: currentTransaction, error: fetchError } = await supabase
       .from('transactions')
-      .select('account_id, amount, status, organization_id')
+      .select('account_id, amount, status, organization_id, type')
       .eq('id', transactionId)
       .single();
 
