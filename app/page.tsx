@@ -76,7 +76,7 @@ export default async function HomePage() {
                 </Button>
               </Link>
               <Link href="/register">
-                <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white">
                   Começar Grátis
                 </Button>
               </Link>
@@ -315,12 +315,12 @@ export default async function HomePage() {
 
       {/* CTA Final */}
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <Card className="border-0 shadow-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white">
+        <Card className="border-0 shadow-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600">
           <CardHeader className="text-center pb-4">
             <CardTitle className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Pronto para começar?
             </CardTitle>
-            <CardDescription className="text-blue-100 text-lg">
+            <CardDescription className="text-white/90 text-lg">
               Crie sua conta gratuitamente e comece a gerenciar suas finanças hoje mesmo.
             </CardDescription>
           </CardHeader>
@@ -328,7 +328,7 @@ export default async function HomePage() {
             <Link href="/register">
               <Button 
                 size="lg" 
-                className="bg-white text-blue-600 hover:bg-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 text-base px-8 py-6"
+                className="bg-white text-blue-600 hover:bg-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 text-base px-8 py-6 font-semibold"
               >
                 Criar Conta Grátis
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -337,8 +337,7 @@ export default async function HomePage() {
             <Link href="/login">
               <Button 
                 size="lg" 
-                variant="outline"
-                className="border-2 border-white text-white hover:bg-white/10 text-base px-8 py-6"
+                className="border-2 border-white bg-transparent text-white hover:bg-white/20 shadow-lg hover:shadow-xl transition-all duration-300 text-base px-8 py-6 font-semibold"
               >
                 Fazer Login
               </Button>
