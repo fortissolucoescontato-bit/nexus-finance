@@ -105,7 +105,6 @@ export default async function DashboardPage() {
 
   // Extrai o nome do perfil ou usa o email como fallback
   const userName = profile?.full_name || user.email || 'Usuário';
-  const userEmail = profile?.email || user.email || 'Usuário';
 
   // Busca estatísticas financeiras (apenas se tiver organização)
   let totalBalance = 0;
