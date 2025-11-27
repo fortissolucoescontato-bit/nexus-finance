@@ -15,7 +15,7 @@ import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { logout, createPersonalOrganization } from './actions';
-import { LogOut, User, Wallet, Tag, Receipt } from 'lucide-react';
+import { LogOut, User, Wallet, Tag, Receipt, TrendingUp, TrendingDown, Plus, Clock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
@@ -121,12 +121,19 @@ export default async function DashboardPage() {
   let totalIncome = 0;
   let totalExpenses = 0;
   let accountsCount = 0;
+  let categoriesCount = 0;
   let transactionsCount = 0;
+  let recentTransactions: any[] = [];
 
   if (personalOrg?.id) {
     const { data: accounts } = await supabase
       .from('accounts')
       .select('balance')
+      .eq('organization_id', personalOrg.id);
+
+    const { data: categories } = await supabase
+      .from('categories')
+      .select('id')
       .eq('organization_id', personalOrg.id);
 
     const { data: transactions } = await supabase
@@ -136,18 +143,44 @@ export default async function DashboardPage() {
       .eq('status', 'paid')
       .limit(100);
 
+    // Busca transações recentes para exibir no dashboard
+    const { data: recentTransactionsData } = await supabase
+      .from('transactions')
+      .select(`
+        id,
+        amount,
+        date,
+        description,
+        type,
+        status,
+        accounts:account_id (name),
+        categories:category_id (name)
+      `)
+      .eq('organization_id', personalOrg.id)
+      .order('date', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    // Processa transações recentes
+    recentTransactions = (recentTransactionsData || []).map((t: any) => ({
+      ...t,
+      accounts: Array.isArray(t.accounts) ? t.accounts[0] : t.accounts,
+      categories: Array.isArray(t.categories) ? t.categories[0] : t.categories,
+    }));
+
     // Calcula estatísticas
     totalBalance = accounts?.reduce((sum, acc) => sum + (acc.balance || 0), 0) || 0;
     totalIncome = transactions?.filter(t => t.type === 'income').reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
     totalExpenses = Math.abs(transactions?.filter(t => t.type === 'expense').reduce((sum, t) => sum + (t.amount || 0), 0) || 0);
     accountsCount = accounts?.length || 0;
+    categoriesCount = categories?.length || 0;
     transactionsCount = transactions?.length || 0;
   }
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950 p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header do Dashboard */}
+        {/* ========== HEADER DO DASHBOARD ========== */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
@@ -173,9 +206,13 @@ export default async function DashboardPage() {
           </form>
         </div>
 
-        {/* Cards de Estatísticas */}
+        {/* ========== SEÇÃO: RESUMO FINANCEIRO ========== */}
         {personalOrg && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Resumo Financeiro</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Saldo Total */}
             <Card className="card-hover border-0 shadow-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
               <CardContent className="p-6">
@@ -251,10 +288,79 @@ export default async function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
+            </div>
           </div>
         )}
 
-        {/* Card de Informações do Usuário */}
+        {/* ========== SEÇÃO: TRANSAÇÕES RECENTES ========== */}
+        {personalOrg && recentTransactions.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Transações Recentes</h2>
+              <Link href="/transactions">
+                <Button variant="ghost" size="sm" className="text-blue-600 dark:text-blue-400">
+                  Ver Todas
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+            <Card className="card-hover shadow-lg border-0 glass-effect">
+              <CardContent className="p-6">
+                <div className="space-y-3">
+                  {recentTransactions.map((transaction: any) => {
+                    const isIncome = transaction.type === 'income';
+                    const accountName = transaction.accounts?.name || 'Conta não encontrada';
+                    const categoryName = transaction.categories?.name || 'Sem categoria';
+                    const date = new Date(transaction.date).toLocaleDateString('pt-BR');
+                    
+                    return (
+                      <div 
+                        key={transaction.id} 
+                        className="flex items-center justify-between p-4 rounded-lg border-2 border-gray-100 dark:border-gray-800 hover:border-blue-300 dark:hover:border-blue-700 transition-all"
+                      >
+                        <div className="flex items-center gap-4 flex-1">
+                          <div className={`p-2 rounded-lg ${
+                            isIncome 
+                              ? 'bg-emerald-100 dark:bg-emerald-900/30' 
+                              : 'bg-red-100 dark:bg-red-900/30'
+                          }`}>
+                            {isIncome ? (
+                              <TrendingUp className={`h-5 w-5 ${isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`} />
+                            ) : (
+                              <TrendingDown className={`h-5 w-5 ${isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`} />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-gray-900 dark:text-white">
+                              {transaction.description || 'Sem descrição'}
+                            </p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {accountName} • {categoryName} • {date}
+                            </p>
+                          </div>
+                          <p className={`text-lg font-bold ${
+                            isIncome 
+                              ? 'text-emerald-600 dark:text-emerald-400' 
+                              : 'text-red-600 dark:text-red-400'
+                          }`}>
+                            {isIncome ? '+' : '-'}{new Intl.NumberFormat('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL',
+                            }).format(Math.abs(transaction.amount) / 100)}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* ========== SEÇÃO: MINHA CONTA E ORGANIZAÇÃO ========== */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Minha Conta</h2>
         <Card className="card-hover shadow-lg border-0 glass-effect">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-3 text-2xl">
@@ -311,25 +417,85 @@ export default async function DashboardPage() {
             )}
           </CardContent>
         </Card>
+        </div>
 
-        {/* Card de Navegação Rápida */}
-        <Card className="card-hover shadow-lg border-0 glass-effect">
-          <CardHeader>
-            <CardTitle className="text-2xl">Acesso Rápido</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* ========== SEÇÃO: AÇÕES RÁPIDAS ========== */}
+        {personalOrg && (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Ações Rápidas</h2>
+            <Card className="card-hover shadow-lg border-0 glass-effect">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Link href="/transactions">
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-auto p-6 flex flex-col items-center gap-3 border-2 border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                    >
+                      <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+                        <Receipt className="h-6 w-6" />
+                      </div>
+                      <div className="text-center">
+                        <p className="font-semibold text-gray-900 dark:text-white">Nova Transação</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Registre receita ou despesa</p>
+                      </div>
+                    </Button>
+                  </Link>
+                  <Link href="/accounts">
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-auto p-6 flex flex-col items-center gap-3 border-2 border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20"
+                    >
+                      <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                        <Wallet className="h-6 w-6" />
+                      </div>
+                      <div className="text-center">
+                        <p className="font-semibold text-gray-900 dark:text-white">Nova Conta</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Adicione conta bancária</p>
+                      </div>
+                    </Button>
+                  </Link>
+                  <Link href="/categories">
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-auto p-6 flex flex-col items-center gap-3 border-2 border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
+                    >
+                      <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
+                        <Tag className="h-6 w-6" />
+                      </div>
+                      <div className="text-center">
+                        <p className="font-semibold text-gray-900 dark:text-white">Nova Categoria</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Organize receitas/despesas</p>
+                      </div>
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* ========== SEÇÃO: ACESSO RÁPIDO ========== */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Acesso Rápido</h2>
+          <Card className="card-hover shadow-lg border-0 glass-effect">
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Link href="/accounts">
                 <Card className="card-hover border-2 border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
                   <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
-                        <Wallet className="h-6 w-6" aria-hidden="true" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                          <Wallet className="h-6 w-6" aria-hidden="true" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900 dark:text-white">Contas</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {personalOrg ? `${accountsCount} conta${accountsCount !== 1 ? 's' : ''}` : 'Gerencie suas contas'}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white">Contas</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Gerencie suas contas</p>
-                      </div>
+                      <ArrowRight className="h-5 w-5 text-gray-400" />
                     </div>
                   </CardContent>
                 </Card>
@@ -337,14 +503,19 @@ export default async function DashboardPage() {
               <Link href="/categories">
                 <Card className="card-hover border-2 border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 dark:hover:border-emerald-600 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
                   <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
-                        <Tag className="h-6 w-6" aria-hidden="true" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
+                          <Tag className="h-6 w-6" aria-hidden="true" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900 dark:text-white">Categorias</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {personalOrg ? `${categoriesCount} categoria${categoriesCount !== 1 ? 's' : ''}` : 'Organize receitas e despesas'}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white">Categorias</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Organize receitas e despesas</p>
-                      </div>
+                      <ArrowRight className="h-5 w-5 text-gray-400" />
                     </div>
                   </CardContent>
                 </Card>
@@ -352,14 +523,19 @@ export default async function DashboardPage() {
               <Link href="/transactions">
                 <Card className="card-hover border-2 border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-600 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
                   <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-white">
-                        <Receipt className="h-6 w-6" aria-hidden="true" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+                          <Receipt className="h-6 w-6" aria-hidden="true" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900 dark:text-white">Transações</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {personalOrg ? `${transactionsCount} registrada${transactionsCount !== 1 ? 's' : ''}` : 'Registre movimentações'}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white">Transações</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Registre movimentações</p>
-                      </div>
+                      <ArrowRight className="h-5 w-5 text-gray-400" />
                     </div>
                   </CardContent>
                 </Card>
