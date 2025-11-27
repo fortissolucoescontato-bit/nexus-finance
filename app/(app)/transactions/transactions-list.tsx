@@ -4,7 +4,7 @@
  * Lista de transações com opções de editar e deletar
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Edit2, Trash2, ArrowUpCircle, ArrowDownCircle, Receipt, MessageCircle, Filter } from 'lucide-react';
@@ -77,6 +77,23 @@ export function TransactionsList({
   // Estado para filtros
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'paid'>('all');
   const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all');
+  // Telefone digitado para cada transação (usado apenas para o botão de WhatsApp)
+  const [phoneByTransaction, setPhoneByTransaction] = useState<Record<string, string>>({});
+
+  // Carrega telefones salvos no localStorage ao montar / quando a lista de transações mudar
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const initial: Record<string, string> = {};
+    transactions.forEach((transaction) => {
+      const stored = localStorage.getItem(`transaction_phone_${transaction.id}`);
+      if (stored) {
+        initial[transaction.id] = stored;
+      }
+    });
+
+    setPhoneByTransaction(initial);
+  }, [transactions]);
 
   const handleDelete = async (transactionId: string) => {
     if (!confirm('Tem certeza que deseja deletar esta transação? Esta ação não pode ser desfeita.')) {
@@ -210,6 +227,7 @@ export function TransactionsList({
         const isPending = transaction.status === 'pending';
         const accountName = transaction.accounts?.name || 'Conta não encontrada';
         const categoryName = transaction.categories?.name || 'Sem categoria';
+        const phone = phoneByTransaction[transaction.id] || '';
 
         return (
           <Card key={transaction.id} className={`card-hover border-2 transition-all ${
@@ -259,7 +277,35 @@ export function TransactionsList({
                     </p>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col items-end gap-2 min-w-[230px]">
+                  {/* Campo para telefone do cliente (usado no WhatsApp) */}
+                  {isPending && isIncome && (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="tel"
+                        placeholder="DDD + número (somente dígitos)"
+                        value={phone}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          const cleaned = raw.replace(/\D/g, '');
+                          setPhoneByTransaction((prev) => ({
+                            ...prev,
+                            [transaction.id]: cleaned,
+                          }));
+                          if (typeof window !== 'undefined') {
+                            if (cleaned) {
+                              localStorage.setItem(`transaction_phone_${transaction.id}`, cleaned);
+                            } else {
+                              localStorage.removeItem(`transaction_phone_${transaction.id}`);
+                            }
+                          }
+                        }}
+                        className="h-9 w-44 rounded-md border border-gray-300 dark:border-gray-700 bg-background px-2 text-xs"
+                        aria-label="Telefone da cliente para cobrança no WhatsApp"
+                      />
+                    </div>
+                  )}
+
                   {/* Botão WhatsApp para Fiado (Apenas receitas pendentes) */}
                   {isPending && isIncome && (
                     <Button
@@ -272,8 +318,12 @@ export function TransactionsList({
                         const message = encodeURIComponent(
                           `Olá! Vi aqui no meu sistema que ficou pendente R$ ${amount} referente a ${description}. Podemos agendar o pagamento? Obrigada!`
                         );
+                        const rawPhone = phoneByTransaction[transaction.id] || '';
+                        const cleanedPhone = rawPhone.replace(/\D/g, '');
+                        // Se o telefone foi informado, envia diretamente para o número
+                        const baseUrl = cleanedPhone ? `https://wa.me/${cleanedPhone}` : 'https://wa.me/';
                         // Abre WhatsApp Web/App
-                        window.open(`https://wa.me/?text=${message}`, '_blank');
+                        window.open(`${baseUrl}?text=${message}`, '_blank');
                       }}
                       className="bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30 border-green-300 dark:border-green-700"
                       aria-label="Cobrar no WhatsApp"

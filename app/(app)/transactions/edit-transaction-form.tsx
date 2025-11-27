@@ -74,6 +74,7 @@ export function EditTransactionForm({
   const [description, setDescription] = useState(transaction.description || '');
   const [type, setType] = useState<'income' | 'expense'>(transaction.type);
   const [status, setStatus] = useState<'pending' | 'paid'>(transaction.status);
+  const [phone, setPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -85,6 +86,15 @@ export function EditTransactionForm({
       setCategoryId('');
     }
   }, [type, categoryId, categories]);
+
+  // Carrega telefone salvo (se existir) para esta transação
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const stored = localStorage.getItem(`transaction_phone_${transaction.id}`);
+    if (stored) {
+      setPhone(stored);
+    }
+  }, [transaction.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,7 +161,7 @@ export function EditTransactionForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Seção: Tipo e Conta */}
+      {/* Seção: Tipo, Status e Conta */}
       <div className="space-y-4">
         <div className="flex items-center gap-2 mb-3">
           <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
@@ -160,7 +170,8 @@ export function EditTransactionForm({
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Informações Básicas</h3>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Tipo */}
           <div className="space-y-2">
             <Label htmlFor="edit-transaction-type" className="flex items-center gap-2 text-sm font-medium">
               {type === 'income' ? (
@@ -194,7 +205,34 @@ export function EditTransactionForm({
               <option value="income">Receita</option>
             </select>
           </div>
+          {/* Status - agora ao lado do Tipo */}
+          <div className="space-y-2">
+            <Label htmlFor="edit-transaction-status" className="flex items-center gap-2 text-sm font-medium">
+              {status === 'paid' ? (
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              ) : (
+                <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              )}
+              Status
+            </Label>
+            <select
+              id="edit-transaction-status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value as 'pending' | 'paid')}
+              disabled={isLoading}
+              className={`flex h-11 w-full rounded-lg border-2 transition-all px-4 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                status === 'paid'
+                  ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/20 focus-visible:ring-emerald-500'
+                  : 'border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/20 focus-visible:ring-amber-500'
+              }`}
+              aria-label="Status"
+            >
+              <option value="paid">Pago/Recebido</option>
+              <option value="pending">Fiado/Pendente</option>
+            </select>
+          </div>
 
+          {/* Conta */}
           <div className="space-y-2">
             <Label htmlFor="edit-transaction-account" className="flex items-center gap-2 text-sm font-medium">
               <Wallet className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -220,7 +258,7 @@ export function EditTransactionForm({
         </div>
       </div>
 
-      {/* Seção: Categoria e Status */}
+      {/* Seção: Categoria */}
       <div className="space-y-4">
         <div className="flex items-center gap-2 mb-3">
           <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 text-white">
@@ -249,32 +287,6 @@ export function EditTransactionForm({
                   {category.name}
                 </option>
               ))}
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="edit-transaction-status" className="flex items-center gap-2 text-sm font-medium">
-              {status === 'paid' ? (
-                <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              ) : (
-                <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-              )}
-              Status
-            </Label>
-            <select
-              id="edit-transaction-status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value as 'pending' | 'paid')}
-              disabled={isLoading}
-              className={`flex h-11 w-full rounded-lg border-2 transition-all px-4 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-                status === 'paid'
-                  ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/20 focus-visible:ring-emerald-500'
-                  : 'border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/20 focus-visible:ring-amber-500'
-              }`}
-              aria-label="Status"
-            >
-              <option value="paid">Pago</option>
-              <option value="pending">Pendente</option>
             </select>
           </div>
         </div>
@@ -359,6 +371,39 @@ export function EditTransactionForm({
           />
           <p className="text-xs text-gray-500 dark:text-gray-400">
             {description.length}/500 caracteres
+          </p>
+        </div>
+
+        {/* Telefone da cliente para cobrança no WhatsApp */}
+        <div className="space-y-2">
+          <Label htmlFor="edit-transaction-phone" className="flex items-center gap-2 text-sm font-medium">
+            <FileText className="h-4 w-4 text-green-600 dark:text-green-400" />
+            Telefone da Cliente (para cobrança no WhatsApp)
+          </Label>
+          <Input
+            id="edit-transaction-phone"
+            type="tel"
+            placeholder="DDD + número (somente dígitos)"
+            value={phone}
+            onChange={(e) => {
+              const raw = e.target.value;
+              const cleaned = raw.replace(/\D/g, '');
+              setPhone(cleaned);
+              if (typeof window !== 'undefined') {
+                if (cleaned) {
+                  localStorage.setItem(`transaction_phone_${transaction.id}`, cleaned);
+                } else {
+                  localStorage.removeItem(`transaction_phone_${transaction.id}`);
+                }
+              }
+            }}
+            maxLength={20}
+            disabled={isLoading}
+            aria-label="Telefone da cliente para cobrança no WhatsApp"
+            className="h-11 border-2 border-gray-200 dark:border-gray-700 focus:border-green-500 dark:focus:border-green-500 rounded-lg text-sm"
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Esse número será usado no botão <strong>“Cobrar no Zap”</strong> da lista de vendas.
           </p>
         </div>
       </div>
