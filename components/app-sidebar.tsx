@@ -8,8 +8,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
@@ -19,8 +18,6 @@ import {
   Settings,
   User,
   LogOut,
-  Menu,
-  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -66,12 +63,7 @@ const menuItems = [
 
 export function AppSidebar({ userName }: SidebarProps) {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
-
-  // Fecha o menu mobile ao navegar para outra rota
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
+  const router = useRouter();
 
   const handleLogout = async () => {
     try {
@@ -88,57 +80,22 @@ export function AppSidebar({ userName }: SidebarProps) {
   };
 
   return (
-    <>
-      {/* Botão Mobile - Menu */}
-      <button
-        type="button"
-        onClick={() => setIsOpen(true)}
-        className="fixed left-4 top-4 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-pink-600 to-rose-600 text-white shadow-lg md:hidden"
-        aria-label="Abrir menu de navegação"
-      >
-        <Menu className="h-5 w-5" />
-      </button>
-
-      {/* Overlay para mobile */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm md:hidden"
-          onClick={() => setIsOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
-      <aside
-        className={cn(
-          'fixed left-0 top-0 z-40 h-screen w-64 border-r border-gray-200 bg-white/80 dark:border-gray-800 dark:bg-gray-900/80 backdrop-blur-lg transform transition-transform duration-300',
-          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
-          'md:static md:translate-x-0'
-        )}
-      >
-        <div className="flex h-full flex-col">
-          {/* Logo e Nome do App */}
-          <div className="flex h-16 items-center gap-3 border-b border-gray-200 px-6 dark:border-gray-800">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
-              <Wallet className="h-6 w-6 text-white" />
-            </div>
-            <div className="flex flex-col flex-1">
-              <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Caderno de Fiado
-              </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                Para Consultoras e Sacoleiras
-              </span>
-            </div>
-            {/* Botão fechar no mobile */}
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="md:hidden text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-              aria-label="Fechar menu"
-            >
-              <X className="h-5 w-5" />
-            </button>
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-gray-200 bg-white/80 dark:border-gray-800 dark:bg-gray-900/80 backdrop-blur-lg">
+      <div className="flex h-full flex-col">
+        {/* Logo e Nome do App */}
+        <div className="flex h-16 items-center gap-3 border-b border-gray-200 px-6 dark:border-gray-800">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
+            <Wallet className="h-6 w-6 text-white" />
           </div>
+          <div className="flex flex-col">
+            <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Caderno de Fiado
+            </span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              Para Consultoras e Sacoleiras
+            </span>
+          </div>
+        </div>
 
         {/* Menu de Navegação */}
         <nav className="flex-1 space-y-1 px-3 py-4">
@@ -209,9 +166,8 @@ export function AppSidebar({ userName }: SidebarProps) {
             Sair
           </Button>
         </div>
-        </div>
-      </aside>
-    </>
+      </div>
+    </aside>
   );
 }
 
