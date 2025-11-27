@@ -37,8 +37,11 @@ export async function updateSession(request: NextRequest) {
   // 🔒 REGRAS DE PROTEÇÃO DE ROTAS
   const url = request.nextUrl.clone();
   
-  // 1. Se NÃO estiver logado e tentar acessar área protegida (/dashboard)
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
+  // 1. Se NÃO estiver logado e tentar acessar área protegida (rotas de /dashboard, /accounts, /categories, /transactions)
+  const protectedRoutes = ['/dashboard', '/accounts', '/categories', '/transactions'];
+  const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route));
+  
+  if (!user && isProtectedRoute) {
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
