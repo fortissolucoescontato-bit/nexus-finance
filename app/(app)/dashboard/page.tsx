@@ -14,8 +14,8 @@ import { createServerComponentClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { logout, createPersonalOrganization } from './actions';
-import { LogOut, User, Wallet, Tag, Receipt, TrendingUp, TrendingDown, Plus, Clock, ArrowRight } from 'lucide-react';
+import { createPersonalOrganization } from './actions';
+import { User, Wallet, Tag, Receipt, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
@@ -178,32 +178,16 @@ export default async function DashboardPage() {
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950 p-4 md:p-8">
+    <div className="min-h-screen p-6 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* ========== HEADER DO DASHBOARD ========== */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Dashboard
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
-              Bem-vindo de volta, <span className="font-semibold text-gray-900 dark:text-white">{userName.split(' ')[0]}</span>! 👋
-            </p>
-          </div>
-
-          {/* Botão de Logout */}
-          <form action={logout}>
-            <Button 
-              type="submit" 
-              variant="outline" 
-              size="sm"
-              className="border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
-              aria-label="Sair da conta"
-            >
-              <LogOut className="h-4 w-4 mr-2" aria-hidden="true" />
-              Sair
-            </Button>
-          </form>
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            Dashboard
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
+            Bem-vindo de volta, <span className="font-semibold text-gray-900 dark:text-white">{userName.split(' ')[0]}</span>! 👋
+          </p>
         </div>
 
         {/* ========== SEÇÃO: RESUMO FINANCEIRO ========== */}
@@ -419,131 +403,6 @@ export default async function DashboardPage() {
         </Card>
         </div>
 
-        {/* ========== SEÇÃO: AÇÕES RÁPIDAS ========== */}
-        {personalOrg && (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Ações Rápidas</h2>
-            <Card className="card-hover shadow-lg border-0 glass-effect">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Link href="/transactions">
-                    <Button 
-                      variant="outline" 
-                      className="w-full h-auto p-6 flex flex-col items-center gap-3 border-2 border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/20"
-                    >
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-white">
-                        <Receipt className="h-6 w-6" />
-                      </div>
-                      <div className="text-center">
-                        <p className="font-semibold text-gray-900 dark:text-white">Nova Transação</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Registre receita ou despesa</p>
-                      </div>
-                    </Button>
-                  </Link>
-                  <Link href="/accounts">
-                    <Button 
-                      variant="outline" 
-                      className="w-full h-auto p-6 flex flex-col items-center gap-3 border-2 border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20"
-                    >
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
-                        <Wallet className="h-6 w-6" />
-                      </div>
-                      <div className="text-center">
-                        <p className="font-semibold text-gray-900 dark:text-white">Nova Conta</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Adicione conta bancária</p>
-                      </div>
-                    </Button>
-                  </Link>
-                  <Link href="/categories">
-                    <Button 
-                      variant="outline" 
-                      className="w-full h-auto p-6 flex flex-col items-center gap-3 border-2 border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
-                    >
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
-                        <Tag className="h-6 w-6" />
-                      </div>
-                      <div className="text-center">
-                        <p className="font-semibold text-gray-900 dark:text-white">Nova Categoria</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Organize receitas/despesas</p>
-                      </div>
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* ========== SEÇÃO: ACESSO RÁPIDO ========== */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Acesso Rápido</h2>
-          <Card className="card-hover shadow-lg border-0 glass-effect">
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Link href="/accounts">
-                <Card className="card-hover border-2 border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
-                          <Wallet className="h-6 w-6" aria-hidden="true" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">Contas</h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {personalOrg ? `${accountsCount} conta${accountsCount !== 1 ? 's' : ''}` : 'Gerencie suas contas'}
-                          </p>
-                        </div>
-                      </div>
-                      <ArrowRight className="h-5 w-5 text-gray-400" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-              <Link href="/categories">
-                <Card className="card-hover border-2 border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 dark:hover:border-emerald-600 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
-                          <Tag className="h-6 w-6" aria-hidden="true" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">Categorias</h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {personalOrg ? `${categoriesCount} categoria${categoriesCount !== 1 ? 's' : ''}` : 'Organize receitas e despesas'}
-                          </p>
-                        </div>
-                      </div>
-                      <ArrowRight className="h-5 w-5 text-gray-400" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-              <Link href="/transactions">
-                <Card className="card-hover border-2 border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-600 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-white">
-                          <Receipt className="h-6 w-6" aria-hidden="true" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">Transações</h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {personalOrg ? `${transactionsCount} registrada${transactionsCount !== 1 ? 's' : ''}` : 'Registre movimentações'}
-                          </p>
-                        </div>
-                      </div>
-                      <ArrowRight className="h-5 w-5 text-gray-400" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-        </div>
       </div>
     </div>
   );
