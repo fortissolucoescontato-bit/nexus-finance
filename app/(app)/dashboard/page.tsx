@@ -203,8 +203,8 @@ export default async function DashboardPage() {
       {/* Onboarding Modal para novos usuários */}
       <OnboardingWrapper isNewUser={isNewUser} />
       
-      <div className="min-h-screen p-6 md:p-8">
-        <div className="max-w-7xl mx-auto space-y-8">
+      <div className="min-h-screen p-4 sm:p-6 md:p-8">
+        <div className="w-full max-w-7xl mx-auto md:pl-4 lg:pl-8 pr-4 space-y-8">
         {/* ========== HEADER DO DASHBOARD ========== */}
         <div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
