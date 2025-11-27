@@ -196,14 +196,6 @@ export default async function DashboardPage() {
       accounts: Array.isArray(t.accounts) ? t.accounts[0] : t.accounts,
       categories: Array.isArray(t.categories) ? t.categories[0] : t.categories,
     }));
-
-    // Calcula estatísticas
-    totalBalance = accounts?.reduce((sum, acc) => sum + (acc.balance || 0), 0) || 0;
-    totalIncome = transactions?.filter(t => t.type === 'income').reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
-    totalExpenses = Math.abs(transactions?.filter(t => t.type === 'expense').reduce((sum, t) => sum + (t.amount || 0), 0) || 0);
-    accountsCount = accounts?.length || 0;
-    categoriesCount = categories?.length || 0;
-    transactionsCount = transactions?.length || 0;
   }
   
   return (
