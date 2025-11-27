@@ -271,7 +271,6 @@ export default async function HomePage() {
             </Button>
           </Link>
         </div>
-        </div>
       </section>
 
       {/* Seção: Por que Começar Agora */}
