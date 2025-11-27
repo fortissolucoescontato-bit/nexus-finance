@@ -46,10 +46,12 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // 2. Se ESTIVER logado e tentar acessar área pública (/login, /register, /)
+  // 2. Se ESTIVER logado e tentar acessar área pública (/login, /register, /forgot-password)
   // Redireciona para o dashboard para não perder tempo
+  // Nota: /reset-password pode ser acessado mesmo logado (caso o usuário queira redefinir)
   if (user) {
-    if (request.nextUrl.pathname === '/' || request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register')) {
+    const publicRoutes = ['/', '/login', '/register', '/forgot-password'];
+    if (publicRoutes.includes(request.nextUrl.pathname) || request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register')) {
       url.pathname = '/dashboard';
       return NextResponse.redirect(url);
     }

@@ -165,3 +165,84 @@ export async function updateEmail(
   }
 }
 
+/**
+ * Atualiza a senha do usuário
+ * 
+ * @param currentPassword - Senha atual (para validação)
+ * @param newPassword - Nova senha
+ * @returns Promise<{ success: boolean; error?: string }>
+ */
+export async function updatePassword(
+  currentPassword: string,
+  newPassword: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createServerActionClient();
+
+    // Verifica autenticação
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return {
+        success: false,
+        error: 'Usuário não autenticado',
+      };
+    }
+
+    // Valida a nova senha
+    const passwordValidation = z.string().min(6, 'Senha deve ter pelo menos 6 caracteres').max(100, 'Senha muito longa').safeParse(newPassword);
+
+    if (!passwordValidation.success) {
+      const firstError = passwordValidation.error.errors[0];
+      return {
+        success: false,
+        error: firstError.message,
+      };
+    }
+
+    // Verifica a senha atual fazendo login
+    // Isso garante que o usuário sabe a senha atual
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email!,
+      password: currentPassword,
+    });
+
+    if (signInError) {
+      return {
+        success: false,
+        error: 'Senha atual incorreta',
+      };
+    }
+
+    // Atualiza a senha
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (updateError) {
+      logger.error('Erro ao atualizar senha', updateError);
+      return {
+        success: false,
+        error: updateError.message || 'Erro ao atualizar senha',
+      };
+    }
+
+    logger.debug('Senha atualizada com sucesso', { userId: user.id });
+
+    revalidatePath('/settings');
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    logger.error('Erro inesperado ao atualizar senha', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Erro inesperado ao atualizar senha',
+    };
+  }
+}
+

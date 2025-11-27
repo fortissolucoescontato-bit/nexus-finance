@@ -21,9 +21,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { AlertCircle, Wallet } from 'lucide-react';
+import { AlertCircle, Wallet, Mail, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { MagicLinkForm } from './magic-link-form';
 
 export const metadata: Metadata = {
   title: 'Login',
@@ -39,7 +40,7 @@ export const metadata: Metadata = {
  * Usado para exibir mensagens de erro após tentativa de login falha
  */
 interface LoginPageProps {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; success?: string }>;
 }
 
 /**
@@ -52,8 +53,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   // Resolve os searchParams (Next.js 15 usa Promise para searchParams)
   const params = await searchParams;
   
-  // Extrai a mensagem de erro da URL, se existir
+  // Extrai mensagens da URL
   const errorMessage = params.error;
+  const successMessage = params.success;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 p-4">
@@ -72,6 +74,18 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </CardHeader>
         
         <CardContent>
+          {/* Exibe mensagem de sucesso se houver */}
+          {successMessage && (
+            <div 
+              className="mb-4 p-3 rounded-md bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 flex items-center gap-2 text-sm text-emerald-800 dark:text-emerald-200"
+              role="alert"
+              aria-live="polite"
+            >
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+              <span>{successMessage}</span>
+            </div>
+          )}
+
           {/* Exibe mensagem de erro se houver */}
           {errorMessage && (
             <div 
@@ -103,7 +117,15 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
             {/* Campo de Senha */}
             <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Senha</Label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-primary hover:underline"
+                >
+                  Esqueci minha senha
+                </Link>
+              </div>
               <Input
                 id="password"
                 name="password"
@@ -126,7 +148,22 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </Button>
           </form>
 
-          {/* Link para página de registro */}
+          {/* Divisor */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">
+                Ou
+              </span>
+            </div>
+          </div>
+
+          {/* Link Mágico */}
+          <MagicLinkForm />
+
+          {/* Links de navegação */}
           <div className="mt-4 text-center text-sm">
             <span className="text-gray-600 dark:text-gray-400">
               Não tem conta?{' '}

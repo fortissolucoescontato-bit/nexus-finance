@@ -7,9 +7,10 @@
 import { createServerComponentClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, User, Building2, Mail, Save } from 'lucide-react';
+import { Settings, User, Building2, Mail, Save, Lock } from 'lucide-react';
 import { UpdateProfileForm } from './update-profile-form';
 import { UpdateEmailForm } from './update-email-form';
+import { UpdatePasswordForm } from './update-password-form';
 import dynamic from 'next/dynamic';
 import type { Metadata } from 'next';
 
@@ -105,6 +106,24 @@ export default async function SettingsPage() {
               <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
                 <UpdateEmailForm currentEmail={userEmail} />
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Card de Mudança de Senha */}
+          <Card className="card-hover shadow-lg border-0 glass-effect">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white">
+                  <Lock className="h-5 w-5" />
+                </div>
+                Segurança da Conta
+              </CardTitle>
+              <CardDescription>
+                Altere sua senha para manter sua conta segura
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <UpdatePasswordForm />
             </CardContent>
           </Card>
         </div>
