@@ -15,7 +15,8 @@ import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { logout, createPersonalOrganization } from './actions';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Wallet, Tag, Receipt } from 'lucide-react';
+import Link from 'next/link';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 
@@ -209,19 +210,32 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Card de Informações */}
+        {/* Card de Navegação Rápida */}
         <Card>
           <CardHeader>
-            <CardTitle>Informações do Sistema</CardTitle>
+            <CardTitle>Navegação Rápida</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Esta é uma página protegida. Apenas usuários autenticados podem
-              acessar este conteúdo.
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              O middleware do Next.js está protegendo esta rota automaticamente.
-            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Link href="/accounts">
+                <Button variant="outline" className="w-full justify-start" aria-label="Gerenciar contas">
+                  <Wallet className="h-4 w-4 mr-2" aria-hidden="true" />
+                  Gerenciar Contas
+                </Button>
+              </Link>
+              <Link href="/categories">
+                <Button variant="outline" className="w-full justify-start" aria-label="Gerenciar categorias">
+                  <Tag className="h-4 w-4 mr-2" aria-hidden="true" />
+                  Gerenciar Categorias
+                </Button>
+              </Link>
+              <Link href="/transactions">
+                <Button variant="outline" className="w-full justify-start" aria-label="Gerenciar transações">
+                  <Receipt className="h-4 w-4 mr-2" aria-hidden="true" />
+                  Gerenciar Transações
+                </Button>
+              </Link>
+            </div>
           </CardContent>
         </Card>
       </div>
