@@ -28,12 +28,10 @@ export const metadata: Metadata = {
 // Lazy load dos componentes client para melhor performance
 const CreatePersonalOrgButton = dynamic(() => import('./create-org-button').then(mod => ({ default: mod.CreatePersonalOrgButton })), {
   loading: () => <div className="h-10 w-full animate-pulse bg-gray-200 dark:bg-gray-700 rounded" />,
-  ssr: false,
 });
 
 const EditOrgButton = dynamic(() => import('./edit-org-button').then(mod => ({ default: mod.EditOrgButton })), {
   loading: () => <div className="h-10 w-32 animate-pulse bg-gray-200 dark:bg-gray-700 rounded" />,
-  ssr: false,
 });
 
 /**
