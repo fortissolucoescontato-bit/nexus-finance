@@ -70,27 +70,62 @@ export async function createAccount(
       };
     }
 
-    // Cria a conta
-    const { data: account, error: accountError } = await supabase
-      .from('accounts')
-      .insert({
-        name: validationResult.data.name,
-        type: validationResult.data.type,
-        organization_id: organizationId,
-        balance: 0, // Saldo inicial sempre zero
-      })
-      .select('id')
-      .single();
+    // Tenta criar a conta usando a função auxiliar primeiro (se existir)
+    // Se falhar, tenta inserção direta
+    let accountId: string | null = null;
+    
+    // Primeiro, tenta usar a função auxiliar (mais segura)
+    const { data: functionResult, error: functionError } = await supabase.rpc(
+      'create_account_safe',
+      {
+        p_organization_id: organizationId,
+        p_name: validationResult.data.name,
+        p_type: validationResult.data.type,
+        p_user_id: user.id,
+      }
+    );
 
-    if (accountError) {
-      logger.error('Erro ao criar conta', accountError);
+    if (!functionError && functionResult) {
+      accountId = functionResult;
+    } else {
+      // Se a função não existir ou falhar, tenta inserção direta
+      logger.debug('Função auxiliar não disponível, tentando inserção direta', functionError);
+      
+      const { data: account, error: accountError } = await supabase
+        .from('accounts')
+        .insert({
+          name: validationResult.data.name,
+          type: validationResult.data.type,
+          organization_id: organizationId,
+          balance: 0, // Saldo inicial sempre zero
+        })
+        .select('id')
+        .single();
+
+      if (accountError) {
+        logger.error('Erro ao criar conta', {
+          accountError,
+          userId: user.id,
+          organizationId,
+          functionError,
+        });
+        return {
+          success: false,
+          error: accountError.message || 'Erro ao criar conta. Verifique se você tem permissão.',
+        };
+      }
+      
+      accountId = account.id;
+    }
+
+    if (!accountId) {
       return {
         success: false,
-        error: accountError.message || 'Erro ao criar conta',
+        error: 'Erro ao criar conta: ID não foi retornado',
       };
     }
 
-    logger.debug('Conta criada com sucesso', { accountId: account.id });
+    logger.debug('Conta criada com sucesso', { accountId });
 
     // Revalida cache
     revalidatePath('/accounts');
@@ -98,7 +133,7 @@ export async function createAccount(
 
     return {
       success: true,
-      data: { id: account.id },
+      data: { id: accountId },
     };
   } catch (error) {
     logger.error('Erro inesperado ao criar conta', error);
