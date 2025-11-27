@@ -36,11 +36,11 @@ export default async function AppLayout({
 
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950">
-      {/* Sidebar */}
+      {/* Sidebar e botão mobile */}
       <AppSidebar userName={userName} />
 
       {/* Conteúdo Principal */}
-      <main className="flex-1 overflow-y-auto ml-64">
+      <main className="flex-1 overflow-y-auto ml-0 md:ml-64">
         {children}
       </main>
     </div>
