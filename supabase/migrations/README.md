@@ -11,15 +11,18 @@ As migrações seguem o padrão: `NNN_descricao.sql`
 
 ## Ordem de Execução
 
-As migrações são executadas em ordem numérica pelo Supabase:
+### Para novos projetos:
+1. Execute `000_initial_schema.sql` - Schema inicial completo
+2. Execute `999_FINALIZAR_MVP.sql` - Políticas RLS e categorias pré-definidas
 
-1. `000_initial_schema.sql` - Schema inicial completo
-2. `001_create_profiles_table.sql` - Tabela de perfis
-3. `002_fix_existing_objects.sql` - Correções de objetos existentes
-4. `003_fix_organizations_insert_rls.sql` - Correção RLS para INSERT
-5. `004_create_organization_function.sql` - Função para criar organização
-6. `005_fix_rls_final_definitive.sql` - Correção final de RLS
-7. `006_fix_organizations_update_rls.sql` - Correção RLS para UPDATE
+### Para projetos existentes:
+Execute apenas `999_FINALIZAR_MVP.sql` - Ele consolida todas as correções necessárias.
+
+## Arquivos Principais
+
+- `000_initial_schema.sql` - Schema inicial completo (tabelas, triggers, funções básicas)
+- `006_fix_organizations_update_rls.sql` - Correção RLS para UPDATE de organizações
+- `999_FINALIZAR_MVP.sql` - **Script único para finalizar MVP** (execute este!)
 
 ## Scripts Auxiliares
 
@@ -32,5 +35,5 @@ Scripts de teste, diagnóstico e correção manual estão em `docs/sql/`.
 3. Adicione comentários explicando o que a migração faz
 4. Teste localmente antes de fazer commit
 
-Exemplo: `007_add_transactions_table.sql`
+Exemplo: `013_add_new_feature.sql`
 
