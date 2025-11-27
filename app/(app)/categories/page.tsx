@@ -63,23 +63,25 @@ export default async function CategoriesPage() {
   const expenseCategories = categories?.filter((c) => c.type === 'expense') || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 dark:from-gray-950 dark:via-slate-900 dark:to-emerald-950 p-4 md:p-8">
+      <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard">
-              <Button variant="ghost" size="sm" aria-label="Voltar ao dashboard">
+              <Button variant="ghost" size="sm" className="hover:bg-white/50 dark:hover:bg-gray-800/50" aria-label="Voltar ao dashboard">
                 <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />
                 Voltar
               </Button>
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <Tag className="h-8 w-8" aria-hidden="true" />
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg">
+                  <Tag className="h-8 w-8" aria-hidden="true" />
+                </div>
                 Categorias
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
                 Gerencie suas categorias de receitas e despesas
               </p>
             </div>
@@ -87,13 +89,15 @@ export default async function CategoriesPage() {
         </div>
 
         {/* Formulário de Criação */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5" aria-hidden="true" />
+        <Card className="card-hover shadow-lg border-0 glass-effect">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-2xl">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
+                <Plus className="h-5 w-5" aria-hidden="true" />
+              </div>
               Nova Categoria
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-base">
               Adicione uma nova categoria à sua organização
             </CardDescription>
           </CardHeader>
@@ -103,10 +107,15 @@ export default async function CategoriesPage() {
         </Card>
 
         {/* Lista de Categorias - Receitas */}
-        <Card>
+        <Card className="card-hover shadow-lg border-0 glass-effect border-l-4 border-l-emerald-500">
           <CardHeader>
-            <CardTitle>Receitas</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
+                <Tag className="h-5 w-5" />
+              </div>
+              Receitas
+            </CardTitle>
+            <CardDescription className="text-base">
               {incomeCategories.length > 0
                 ? `${incomeCategories.length} categoria${incomeCategories.length > 1 ? 's' : ''} de receita`
                 : 'Nenhuma categoria de receita cadastrada'}
@@ -121,10 +130,15 @@ export default async function CategoriesPage() {
         </Card>
 
         {/* Lista de Categorias - Despesas */}
-        <Card>
+        <Card className="card-hover shadow-lg border-0 glass-effect border-l-4 border-l-red-500">
           <CardHeader>
-            <CardTitle>Despesas</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 text-white">
+                <Tag className="h-5 w-5" />
+              </div>
+              Despesas
+            </CardTitle>
+            <CardDescription className="text-base">
               {expenseCategories.length > 0
                 ? `${expenseCategories.length} categoria${expenseCategories.length > 1 ? 's' : ''} de despesa`
                 : 'Nenhuma categoria de despesa cadastrada'}

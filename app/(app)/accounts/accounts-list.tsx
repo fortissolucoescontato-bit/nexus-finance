@@ -114,8 +114,8 @@ export function AccountsList({ accounts, organizationId }: AccountsListProps) {
         const typeLabel = getAccountTypeInfo(account.type).label;
 
         return (
-          <Card key={account.id}>
-            <CardContent className="p-4">
+          <Card key={account.id} className="card-hover border-2 hover:border-blue-300 dark:hover:border-blue-700 transition-all">
+            <CardContent className="p-6">
               {isEditing ? (
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -160,15 +160,18 @@ export function AccountsList({ accounts, organizationId }: AccountsListProps) {
               ) : (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <TypeIcon className="h-5 w-5 text-primary" aria-hidden="true" />
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md">
+                      <TypeIcon className="h-6 w-6" aria-hidden="true" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
                         {account.name}
                       </h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {typeLabel} • Saldo: {formatCurrency(account.balance)}
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                        {typeLabel}
+                      </p>
+                      <p className="text-xl font-bold text-gray-900 dark:text-white">
+                        {formatCurrency(account.balance)}
                       </p>
                     </div>
                   </div>

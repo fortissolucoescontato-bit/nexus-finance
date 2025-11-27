@@ -56,14 +56,18 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const errorMessage = params.error;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            Entrar na sua conta
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 p-4">
+      <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]" />
+      <Card className="w-full max-w-md relative z-10 shadow-2xl border-0 glass-effect">
+        <CardHeader className="space-y-3 text-center pb-8">
+          <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-4">
+            <Wallet className="h-8 w-8 text-white" />
+          </div>
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Nexus Finance
           </CardTitle>
-          <CardDescription className="text-center">
-            Digite seu email e senha para acessar o dashboard
+          <CardDescription className="text-base text-gray-600 dark:text-gray-300">
+            Faça login para acessar sua conta
           </CardDescription>
         </CardHeader>
         
@@ -113,7 +117,11 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </div>
 
             {/* Botão de Submit */}
-            <Button type="submit" className="w-full" size="lg">
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300" 
+              size="lg"
+            >
               Entrar
             </Button>
           </form>

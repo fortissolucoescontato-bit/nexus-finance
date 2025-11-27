@@ -107,32 +107,44 @@ export function TransactionsList({
         const categoryName = transaction.categories?.name || 'Sem categoria';
 
         return (
-          <Card key={transaction.id}>
-            <CardContent className="p-4">
+          <Card key={transaction.id} className={`card-hover border-2 transition-all ${
+            isIncome 
+              ? 'hover:border-emerald-300 dark:hover:border-emerald-700 border-l-4 border-l-emerald-500' 
+              : 'hover:border-red-300 dark:hover:border-red-700 border-l-4 border-l-red-500'
+          }`}>
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4 flex-1">
-                  <div className={`p-2 rounded-lg ${isIncome ? 'bg-green-100 dark:bg-green-900/20' : 'bg-red-100 dark:bg-red-900/20'}`}>
+                  <div className={`p-3 rounded-xl text-white shadow-md ${
+                    isIncome 
+                      ? 'bg-gradient-to-br from-emerald-500 to-teal-600' 
+                      : 'bg-gradient-to-br from-red-500 to-rose-600'
+                  }`}>
                     {isIncome ? (
-                      <ArrowUpCircle className={`h-5 w-5 ${isIncome ? 'text-green-600 dark:text-green-400' : ''}`} aria-hidden="true" />
+                      <ArrowUpCircle className="h-6 w-6" aria-hidden="true" />
                     ) : (
-                      <ArrowDownCircle className={`h-5 w-5 ${!isIncome ? 'text-red-600 dark:text-red-400' : ''}`} aria-hidden="true" />
+                      <ArrowDownCircle className="h-6 w-6" aria-hidden="true" />
                     )}
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-gray-900 dark:text-white">
-                        {formatCurrency(transaction.amount)}
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className={`text-2xl font-bold ${
+                        isIncome 
+                          ? 'text-emerald-600 dark:text-emerald-400' 
+                          : 'text-red-600 dark:text-red-400'
+                      }`}>
+                        {isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}
                       </h3>
                       {isPending && (
-                        <span className="px-2 py-1 text-xs rounded-full bg-amber-100 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200">
+                        <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-md">
                           Pendente
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-base font-medium text-gray-900 dark:text-white mb-1">
                       {transaction.description || 'Sem descrição'}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {accountName} • {categoryName} • {formatDate(transaction.date)}
                     </p>
                   </div>

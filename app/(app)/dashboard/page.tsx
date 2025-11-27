@@ -115,28 +115,56 @@ export default async function DashboardPage() {
   // Extrai o nome do perfil ou usa o email como fallback
   const userName = profile?.full_name || user.email || 'Usuário';
   const userEmail = profile?.email || user.email || 'Usuário';
+
+  // Busca estatísticas financeiras (apenas se tiver organização)
+  let totalBalance = 0;
+  let totalIncome = 0;
+  let totalExpenses = 0;
+  let accountsCount = 0;
+  let transactionsCount = 0;
+
+  if (personalOrg?.id) {
+    const { data: accounts } = await supabase
+      .from('accounts')
+      .select('balance')
+      .eq('organization_id', personalOrg.id);
+
+    const { data: transactions } = await supabase
+      .from('transactions')
+      .select('amount, type, status')
+      .eq('organization_id', personalOrg.id)
+      .eq('status', 'paid')
+      .limit(100);
+
+    // Calcula estatísticas
+    totalBalance = accounts?.reduce((sum, acc) => sum + (acc.balance || 0), 0) || 0;
+    totalIncome = transactions?.filter(t => t.type === 'income').reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+    totalExpenses = Math.abs(transactions?.filter(t => t.type === 'expense').reduce((sum, t) => sum + (t.amount || 0), 0) || 0);
+    accountsCount = accounts?.length || 0;
+    transactionsCount = transactions?.length || 0;
+  }
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header do Dashboard */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
               Dashboard
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Área protegida do sistema
+            <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
+              Bem-vindo de volta, <span className="font-semibold text-gray-900 dark:text-white">{userName.split(' ')[0]}</span>! 👋
             </p>
           </div>
 
           {/* Botão de Logout */}
-          {/* Usa um formulário simples para chamar a Server Action */}
           <form action={logout}>
             <Button 
               type="submit" 
               variant="outline" 
               size="sm"
+              className="border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
               aria-label="Sair da conta"
             >
               <LogOut className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -145,93 +173,196 @@ export default async function DashboardPage() {
           </form>
         </div>
 
-        {/* Card de Boas-vindas */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" aria-hidden="true" />
-              Bem-vindo ao Dashboard
+        {/* Cards de Estatísticas */}
+        {personalOrg && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Saldo Total */}
+            <Card className="card-hover border-0 shadow-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-blue-100 text-sm font-medium mb-1">Saldo Total</p>
+                    <p className="text-3xl font-bold">
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      }).format(totalBalance / 100)}
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-full bg-white/20 backdrop-blur-sm">
+                    <Wallet className="h-6 w-6" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Receitas */}
+            <Card className="card-hover border-0 shadow-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-emerald-100 text-sm font-medium mb-1">Receitas</p>
+                    <p className="text-3xl font-bold">
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      }).format(totalIncome / 100)}
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-full bg-white/20 backdrop-blur-sm">
+                    <Receipt className="h-6 w-6" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Despesas */}
+            <Card className="card-hover border-0 shadow-lg bg-gradient-to-br from-red-500 to-rose-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-red-100 text-sm font-medium mb-1">Despesas</p>
+                    <p className="text-3xl font-bold">
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      }).format(totalExpenses / 100)}
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-full bg-white/20 backdrop-blur-sm">
+                    <Tag className="h-6 w-6" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Contas */}
+            <Card className="card-hover border-0 shadow-lg bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-purple-100 text-sm font-medium mb-1">Contas</p>
+                    <p className="text-3xl font-bold">{accountsCount}</p>
+                    <p className="text-purple-100 text-xs mt-1">{transactionsCount} transações</p>
+                  </div>
+                  <div className="p-3 rounded-full bg-white/20 backdrop-blur-sm">
+                    <Wallet className="h-6 w-6" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Card de Informações do Usuário */}
+        <Card className="card-hover shadow-lg border-0 glass-effect">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-2xl">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                <User className="h-5 w-5" aria-hidden="true" />
+              </div>
+              Sua Conta
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Você está logado como:
-              </p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white mt-1">
-                {userName}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
-                {userEmail}
-              </p>
+          <CardContent className="space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Nome</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white">
+                  {userName}
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+                  {userEmail}
+                </p>
+              </div>
             </div>
 
             {personalOrg ? (
-              <div className="pt-4 border-t">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Organização Ativa:
-                </p>
-                <p className="text-base font-semibold text-gray-900 dark:text-white mt-1">
-                  {personalOrg.name}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                  Tipo: {personalOrg.type === 'personal' ? 'Pessoal' : 'Empresarial'}
-                </p>
-                <EditOrgButton 
-                  organizationId={personalOrg.id} 
-                  currentName={personalOrg.name}
-                />
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Organização</p>
+                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {personalOrg.name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                      {personalOrg.type === 'personal' ? 'Pessoal' : 'Empresarial'}
+                    </p>
+                  </div>
+                  <EditOrgButton 
+                    organizationId={personalOrg.id} 
+                    currentName={personalOrg.name}
+                  />
+                </div>
               </div>
             ) : (
-              <div className="pt-4 border-t">
-                <div className="p-4 rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
-                  <p className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-2">
-                    ⚠️ Organização ainda não foi criada
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="p-5 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800">
+                  <p className="text-sm text-amber-800 dark:text-amber-200 font-semibold mb-2 flex items-center gap-2">
+                    <span className="text-lg">🎯</span>
+                    Configure sua organização
                   </p>
-                  <p className="text-xs text-amber-700 dark:text-amber-300 mb-3">
-                    Para começar a usar o sistema, você precisa criar sua organização. 
-                    Escolha um nome personalizado para sua organização.
+                  <p className="text-xs text-amber-700 dark:text-amber-300 mb-4">
+                    Para começar a gerenciar suas finanças, crie sua organização personalizada.
                   </p>
                   <CreatePersonalOrgButton />
                 </div>
               </div>
             )}
-
-            <div className="pt-4 border-t">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                ID do usuário:
-              </p>
-              <p className="text-xs font-mono text-gray-500 dark:text-gray-500 mt-1 break-all">
-                {user.id}
-              </p>
-            </div>
           </CardContent>
         </Card>
 
         {/* Card de Navegação Rápida */}
-        <Card>
+        <Card className="card-hover shadow-lg border-0 glass-effect">
           <CardHeader>
-            <CardTitle>Navegação Rápida</CardTitle>
+            <CardTitle className="text-2xl">Acesso Rápido</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Link href="/accounts">
-                <Button variant="outline" className="w-full justify-start" aria-label="Gerenciar contas">
-                  <Wallet className="h-4 w-4 mr-2" aria-hidden="true" />
-                  Gerenciar Contas
-                </Button>
+                <Card className="card-hover border-2 border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                        <Wallet className="h-6 w-6" aria-hidden="true" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">Contas</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Gerencie suas contas</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </Link>
               <Link href="/categories">
-                <Button variant="outline" className="w-full justify-start" aria-label="Gerenciar categorias">
-                  <Tag className="h-4 w-4 mr-2" aria-hidden="true" />
-                  Gerenciar Categorias
-                </Button>
+                <Card className="card-hover border-2 border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 dark:hover:border-emerald-600 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
+                        <Tag className="h-6 w-6" aria-hidden="true" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">Categorias</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Organize receitas e despesas</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </Link>
               <Link href="/transactions">
-                <Button variant="outline" className="w-full justify-start" aria-label="Gerenciar transações">
-                  <Receipt className="h-4 w-4 mr-2" aria-hidden="true" />
-                  Gerenciar Transações
-                </Button>
+                <Card className="card-hover border-2 border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-600 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+                        <Receipt className="h-6 w-6" aria-hidden="true" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">Transações</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Registre movimentações</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </Link>
             </div>
           </CardContent>

@@ -96,23 +96,25 @@ export default async function TransactionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 dark:from-gray-950 dark:via-slate-900 dark:to-purple-950 p-4 md:p-8">
+      <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard">
-              <Button variant="ghost" size="sm" aria-label="Voltar ao dashboard">
+              <Button variant="ghost" size="sm" className="hover:bg-white/50 dark:hover:bg-gray-800/50" aria-label="Voltar ao dashboard">
                 <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />
                 Voltar
               </Button>
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <Receipt className="h-8 w-8" aria-hidden="true" />
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 bg-clip-text text-transparent flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-white shadow-lg">
+                  <Receipt className="h-8 w-8" aria-hidden="true" />
+                </div>
                 Transações
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
                 Gerencie suas receitas e despesas
               </p>
             </div>
@@ -120,13 +122,15 @@ export default async function TransactionsPage() {
         </div>
 
         {/* Formulário de Criação */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5" aria-hidden="true" />
+        <Card className="card-hover shadow-lg border-0 glass-effect">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-2xl">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+                <Plus className="h-5 w-5" aria-hidden="true" />
+              </div>
               Nova Transação
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-base">
               Adicione uma nova transação financeira
             </CardDescription>
           </CardHeader>
@@ -140,10 +144,10 @@ export default async function TransactionsPage() {
         </Card>
 
         {/* Lista de Transações */}
-        <Card>
+        <Card className="card-hover shadow-lg border-0 glass-effect">
           <CardHeader>
-            <CardTitle>Suas Transações</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl">Suas Transações</CardTitle>
+            <CardDescription className="text-base">
               {transactions && transactions.length > 0
                 ? `${transactions.length} transação${transactions.length > 1 ? 'ões' : ''} registrada${transactions.length > 1 ? 's' : ''}`
                 : 'Nenhuma transação registrada ainda'}

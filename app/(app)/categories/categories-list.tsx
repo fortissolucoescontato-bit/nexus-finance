@@ -91,8 +91,8 @@ export function CategoriesList({ categories, organizationId }: CategoriesListPro
         const isDeleting = deletingId === category.id;
 
         return (
-          <Card key={category.id}>
-            <CardContent className="p-4">
+          <Card key={category.id} className="card-hover border-2 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all">
+            <CardContent className="p-6">
               {isEditing ? (
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -146,16 +146,20 @@ export function CategoriesList({ categories, organizationId }: CategoriesListPro
               ) : (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <Tag className="h-5 w-5 text-primary" aria-hidden="true" />
+                    <div className={`p-3 rounded-xl text-white shadow-md ${
+                      category.type === 'income' 
+                        ? 'bg-gradient-to-br from-emerald-500 to-teal-600' 
+                        : 'bg-gradient-to-br from-red-500 to-rose-600'
+                    }`}>
+                      <Tag className="h-6 w-6" aria-hidden="true" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
                         {category.name}
                       </h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         {category.type === 'income' ? 'Receita' : 'Despesa'}
-                        {category.icon && ` • Ícone: ${category.icon}`}
+                        {category.icon && ` • ${category.icon}`}
                       </p>
                     </div>
                   </div>

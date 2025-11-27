@@ -21,7 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 
@@ -56,14 +56,18 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
   const errorMessage = params.error;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            Criar nova conta
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 p-4">
+      <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]" />
+      <Card className="w-full max-w-md relative z-10 shadow-2xl border-0 glass-effect">
+        <CardHeader className="space-y-3 text-center pb-8">
+          <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center mb-4">
+            <Wallet className="h-8 w-8 text-white" />
+          </div>
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            Comece Agora
           </CardTitle>
-          <CardDescription className="text-center">
-            Preencha os dados abaixo para criar sua conta
+          <CardDescription className="text-base text-gray-600 dark:text-gray-300">
+            Crie sua conta gratuitamente e comece a gerenciar suas finanças
           </CardDescription>
         </CardHeader>
         
@@ -131,7 +135,11 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
             </div>
 
             {/* Botão de Submit */}
-            <Button type="submit" className="w-full" size="lg">
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300" 
+              size="lg"
+            >
               Criar Conta Grátis
             </Button>
           </form>

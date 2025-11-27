@@ -23,7 +23,7 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --radius: 0.75rem;
   }
 
   .dark {
@@ -55,6 +55,37 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    @apply bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600;
+  }
+  
+  .gradient-success {
+    @apply bg-gradient-to-br from-emerald-500 to-teal-600;
+  }
+  
+  .gradient-warning {
+    @apply bg-gradient-to-br from-amber-500 to-orange-500;
+  }
+  
+  .gradient-danger {
+    @apply bg-gradient-to-br from-red-500 to-rose-600;
+  }
+  
+  .glass-effect {
+    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border border-white/20;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:scale-[1.02];
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600;
   }
 }
 
