@@ -57,7 +57,7 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-opacity duration-200"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -65,23 +65,24 @@ export function Modal({
     >
       <div
         className={cn(
-          'relative w-full bg-white dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-800',
-          'transform transition-all duration-300 scale-100',
+          'relative w-full bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border-0',
+          'transform transition-all duration-300 ease-out scale-100',
+          'max-h-[90vh] overflow-hidden flex flex-col',
           sizeClasses[size]
         )}
         onClick={(e) => e.stopPropagation()} // Previne fechamento ao clicar no conteúdo
       >
-        {/* Header do Modal */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800">
-          <div className="flex-1">
+        {/* Header do Modal com gradiente */}
+        <div className="relative flex items-center justify-between p-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white">
+          <div className="flex-1 pr-4">
             <h2
               id="modal-title"
-              className="text-2xl font-bold text-gray-900 dark:text-white"
+              className="text-2xl font-bold text-white mb-1"
             >
               {title}
             </h2>
             {description && (
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-blue-100/90">
                 {description}
               </p>
             )}
@@ -91,15 +92,15 @@ export function Modal({
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="ml-4 h-8 w-8 p-0"
+            className="h-9 w-9 p-0 rounded-full hover:bg-white/20 text-white hover:text-white transition-colors"
             aria-label="Fechar modal"
           >
-            <X className="h-4 w-4" aria-hidden="true" />
+            <X className="h-5 w-5" aria-hidden="true" />
           </Button>
         </div>
 
-        {/* Conteúdo do Modal */}
-        <div className="p-6">
+        {/* Conteúdo do Modal com scroll */}
+        <div className="p-6 overflow-y-auto flex-1">
           {children}
         </div>
       </div>

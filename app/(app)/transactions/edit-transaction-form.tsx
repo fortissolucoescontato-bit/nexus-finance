@@ -14,7 +14,18 @@ import { Label } from '@/components/ui/label';
 import { updateTransaction } from './actions';
 import { LoadingSpinner } from '@/components/ui/loading';
 import { logger } from '@/lib/logger';
-import { Save } from 'lucide-react';
+import { 
+  Save, 
+  Wallet, 
+  Tag, 
+  DollarSign, 
+  Calendar, 
+  FileText,
+  TrendingUp,
+  TrendingDown,
+  CheckCircle2,
+  Clock
+} from 'lucide-react';
 
 interface Account {
   id: string;
@@ -139,147 +150,242 @@ export function EditTransactionForm({
   const filteredCategories = categories.filter((c) => c.type === type);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="edit-transaction-type">Tipo</Label>
-          <select
-            id="edit-transaction-type"
-            value={type}
-            onChange={(e) => {
-              setType(e.target.value as 'income' | 'expense');
-              setCategoryId(''); // Reseta categoria ao mudar tipo
-            }}
-            disabled={isLoading}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            required
-            aria-label="Tipo de transação"
-          >
-            <option value="expense">Despesa</option>
-            <option value="income">Receita</option>
-          </select>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Seção: Tipo e Conta */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+            <Wallet className="h-4 w-4" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Informações Básicas</h3>
         </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="edit-transaction-type" className="flex items-center gap-2 text-sm font-medium">
+              {type === 'income' ? (
+                <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              ) : (
+                <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
+              )}
+              Tipo
+            </Label>
+            <select
+              id="edit-transaction-type"
+              value={type}
+              onChange={(e) => {
+                setType(e.target.value as 'income' | 'expense');
+                setCategoryId(''); // Reseta categoria ao mudar tipo
+              }}
+              disabled={isLoading}
+              className={`flex h-11 w-full rounded-lg border-2 transition-all ${
+                type === 'income'
+                  ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/20'
+                  : 'border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/20'
+              } px-4 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                type === 'income'
+                  ? 'focus-visible:ring-emerald-500'
+                  : 'focus-visible:ring-red-500'
+              } disabled:cursor-not-allowed disabled:opacity-50`}
+              required
+              aria-label="Tipo de transação"
+            >
+              <option value="expense">Despesa</option>
+              <option value="income">Receita</option>
+            </select>
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="edit-transaction-account">Conta</Label>
-          <select
-            id="edit-transaction-account"
-            value={accountId}
-            onChange={(e) => setAccountId(e.target.value)}
-            disabled={isLoading || accounts.length === 0}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            required
-            aria-label="Conta"
-          >
-            <option value="">Selecione uma conta</option>
-            {accounts.map((account) => (
-              <option key={account.id} value={account.id}>
-                {account.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="edit-transaction-category">Categoria (opcional)</Label>
-          <select
-            id="edit-transaction-category"
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            disabled={isLoading || filteredCategories.length === 0}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            aria-label="Categoria"
-          >
-            <option value="">Sem categoria</option>
-            {filteredCategories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="edit-transaction-status">Status</Label>
-          <select
-            id="edit-transaction-status"
-            value={status}
-            onChange={(e) => setStatus(e.target.value as 'pending' | 'paid')}
-            disabled={isLoading}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            aria-label="Status"
-          >
-            <option value="paid">Pago</option>
-            <option value="pending">Pendente</option>
-          </select>
+          <div className="space-y-2">
+            <Label htmlFor="edit-transaction-account" className="flex items-center gap-2 text-sm font-medium">
+              <Wallet className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              Conta
+            </Label>
+            <select
+              id="edit-transaction-account"
+              value={accountId}
+              onChange={(e) => setAccountId(e.target.value)}
+              disabled={isLoading || accounts.length === 0}
+              className="flex h-11 w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all hover:border-blue-300 dark:hover:border-blue-600"
+              required
+              aria-label="Conta"
+            >
+              <option value="">Selecione uma conta</option>
+              {accounts.map((account) => (
+                <option key={account.id} value={account.id}>
+                  {account.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Seção: Categoria e Status */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+            <Tag className="h-4 w-4" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Classificação</h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="edit-transaction-category" className="flex items-center gap-2 text-sm font-medium">
+              <Tag className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              Categoria (opcional)
+            </Label>
+            <select
+              id="edit-transaction-category"
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              disabled={isLoading || filteredCategories.length === 0}
+              className="flex h-11 w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all hover:border-purple-300 dark:hover:border-purple-600"
+              aria-label="Categoria"
+            >
+              <option value="">Sem categoria</option>
+              {filteredCategories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="edit-transaction-status" className="flex items-center gap-2 text-sm font-medium">
+              {status === 'paid' ? (
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              ) : (
+                <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              )}
+              Status
+            </Label>
+            <select
+              id="edit-transaction-status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value as 'pending' | 'paid')}
+              disabled={isLoading}
+              className={`flex h-11 w-full rounded-lg border-2 transition-all px-4 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                status === 'paid'
+                  ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/20 focus-visible:ring-emerald-500'
+                  : 'border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/20 focus-visible:ring-amber-500'
+              }`}
+              aria-label="Status"
+            >
+              <option value="paid">Pago</option>
+              <option value="pending">Pendente</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Seção: Valor e Data */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
+            <DollarSign className="h-4 w-4" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Valor e Data</h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="edit-transaction-amount" className="flex items-center gap-2 text-sm font-medium">
+              <DollarSign className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              Valor (R$)
+            </Label>
+            <div className="relative">
+              <Input
+                id="edit-transaction-amount"
+                type="number"
+                step="0.01"
+                min="0.01"
+                placeholder="0.00"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                required
+                disabled={isLoading}
+                aria-label="Valor da transação"
+                className="h-11 pl-10 text-lg font-semibold border-2 border-gray-200 dark:border-gray-700 focus:border-emerald-500 dark:focus:border-emerald-500 rounded-lg"
+              />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">R$</span>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="edit-transaction-date" className="flex items-center gap-2 text-sm font-medium">
+              <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              Data
+            </Label>
+            <Input
+              id="edit-transaction-date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              required
+              disabled={isLoading}
+              aria-label="Data da transação"
+              className="h-11 border-2 border-gray-200 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-500 rounded-lg font-medium"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Seção: Descrição */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+            <FileText className="h-4 w-4" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Detalhes</h3>
+        </div>
+        
         <div className="space-y-2">
-          <Label htmlFor="edit-transaction-amount">Valor (R$)</Label>
+          <Label htmlFor="edit-transaction-description" className="flex items-center gap-2 text-sm font-medium">
+            <FileText className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+            Descrição (opcional)
+          </Label>
           <Input
-            id="edit-transaction-amount"
-            type="number"
-            step="0.01"
-            min="0.01"
-            placeholder="0.00"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
+            id="edit-transaction-description"
+            type="text"
+            placeholder="Ex: Compra no supermercado, pagamento de salário, etc."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            maxLength={500}
             disabled={isLoading}
-            aria-label="Valor da transação"
+            aria-label="Descrição da transação"
+            className="h-11 border-2 border-gray-200 dark:border-gray-700 focus:border-indigo-500 dark:focus:border-indigo-500 rounded-lg"
           />
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {description.length}/500 caracteres
+          </p>
         </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="edit-transaction-date">Data</Label>
-          <Input
-            id="edit-transaction-date"
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required
-            disabled={isLoading}
-            aria-label="Data da transação"
-          />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="edit-transaction-description">Descrição (opcional)</Label>
-        <Input
-          id="edit-transaction-description"
-          type="text"
-          placeholder="Ex: Compra no supermercado"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          maxLength={500}
-          disabled={isLoading}
-          aria-label="Descrição da transação"
-        />
       </div>
 
       {/* Mensagem de erro */}
       {error && (
-        <div className="p-3 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-          <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+        <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 transition-all">
+          <p className="text-sm font-medium text-red-800 dark:text-red-200">{error}</p>
         </div>
       )}
 
       {/* Botões de ação */}
-      <div className="flex gap-3 justify-end pt-4">
+      <div className="flex gap-3 justify-end pt-6 border-t border-gray-200 dark:border-gray-800">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
           disabled={isLoading}
+          className="px-6 h-11 font-medium"
         >
           Cancelar
         </Button>
-        <Button type="submit" disabled={isLoading || !accountId || !amount}>
+        <Button 
+          type="submit" 
+          disabled={isLoading || !accountId || !amount}
+          className="px-6 h-11 font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all"
+        >
           {isLoading ? (
             <>
               <LoadingSpinner size="sm" className="mr-2" />
