@@ -32,11 +32,13 @@ interface Transaction {
 interface Account {
   id: string;
   name: string;
+  type: string;
 }
 
 interface Category {
   id: string;
   name: string;
+  type: string;
 }
 
 interface TransactionsListProps {
