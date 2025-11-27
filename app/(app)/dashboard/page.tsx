@@ -14,8 +14,7 @@ import { createServerComponentClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { createPersonalOrganization } from './actions';
-import { User, Wallet, Tag, Receipt, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
+import { Wallet, Tag, Receipt, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
@@ -25,14 +24,6 @@ export const metadata: Metadata = {
   description: 'Painel de controle do Nexus Finance',
 };
 
-// Lazy load dos componentes client para melhor performance
-const CreatePersonalOrgButton = dynamic(() => import('./create-org-button').then(mod => ({ default: mod.CreatePersonalOrgButton })), {
-  loading: () => <div className="h-10 w-full animate-pulse bg-gray-200 dark:bg-gray-700 rounded" />,
-});
-
-const EditOrgButton = dynamic(() => import('./edit-org-button').then(mod => ({ default: mod.EditOrgButton })), {
-  loading: () => <div className="h-10 w-32 animate-pulse bg-gray-200 dark:bg-gray-700 rounded" />,
-});
 
 /**
  * Componente da página do dashboard
@@ -342,66 +333,6 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        {/* ========== SEÇÃO: MINHA CONTA E ORGANIZAÇÃO ========== */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Minha Conta</h2>
-        <Card className="card-hover shadow-lg border-0 glass-effect">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-3 text-2xl">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
-                <User className="h-5 w-5" aria-hidden="true" />
-              </div>
-              Sua Conta
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="flex-1">
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Nome</p>
-                <p className="text-xl font-bold text-gray-900 dark:text-white">
-                  {userName}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
-                  {userEmail}
-                </p>
-              </div>
-            </div>
-
-            {personalOrg ? (
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Organização</p>
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {personalOrg.name}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                      {personalOrg.type === 'personal' ? 'Pessoal' : 'Empresarial'}
-                    </p>
-                  </div>
-                  <EditOrgButton 
-                    organizationId={personalOrg.id} 
-                    currentName={personalOrg.name}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <div className="p-5 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800">
-                  <p className="text-sm text-amber-800 dark:text-amber-200 font-semibold mb-2 flex items-center gap-2">
-                    <span className="text-lg">🎯</span>
-                    Configure sua organização
-                  </p>
-                  <p className="text-xs text-amber-700 dark:text-amber-300 mb-4">
-                    Para começar a gerenciar suas finanças, crie sua organização personalizada.
-                  </p>
-                  <CreatePersonalOrgButton />
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        </div>
 
       </div>
     </div>
