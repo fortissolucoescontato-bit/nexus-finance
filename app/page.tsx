@@ -24,6 +24,11 @@ import {
   Zap,
   CheckCircle2,
   ArrowRight,
+  Clock,
+  DollarSign,
+  Target,
+  Sparkles,
+  Star,
 } from 'lucide-react';
 
 /**
@@ -88,27 +93,32 @@ export default async function HomePage() {
       {/* Hero Section */}
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
         <div className="text-center">
-          {/* Badge de destaque */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-8">
-            <Zap className="h-4 w-4" />
-            <span>Sistema Multi-Tenant Profissional</span>
+          {/* Badge de destaque - Prova Social */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium mb-8 animate-pulse">
+            <Sparkles className="h-4 w-4" />
+            <span>🎉 Lançamento Beta - Primeiros Usuários Ganham Acesso Exclusivo</span>
           </div>
 
-          {/* Título principal */}
+          {/* Título principal - Foco em benefício */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Gestão Financeira
+            <span className="text-gray-900 dark:text-white">
+              Controle Suas Finanças
             </span>
             <br />
-            <span className="text-gray-900 dark:text-white">
-              Inteligente e Segura
+            <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              Em Minutos, Não Em Horas
             </span>
           </h1>
 
-          {/* Subtítulo */}
-          <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-10 leading-relaxed">
-            Controle suas finanças pessoais e empresariais com segurança total.
-            Sistema multi-organização com isolamento completo de dados.
+          {/* Subtítulo - Foco em problema/solução */}
+          <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-6 leading-relaxed">
+            Pare de perder tempo com planilhas complicadas. Gerencie todas as suas finanças
+            pessoais e da sua empresa em um único lugar, de forma simples e segura.
+          </p>
+
+          {/* Sub-badge de valor */}
+          <p className="text-lg text-gray-700 dark:text-gray-200 mb-10 font-semibold">
+            ✅ 100% Gratuito • ✅ Sem Cartão de Crédito • ✅ Configure em 2 Minutos
           </p>
 
           {/* CTAs principais */}
@@ -133,33 +143,47 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          {/* Estatísticas/Métricas (opcional - pode ser adicionado depois) */}
+          {/* Prova Social / Métricas */}
+          <div className="flex flex-wrap justify-center items-center gap-8 mt-16 text-center">
+            <div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">⚡</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Comece Agora</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">🔒</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">100% Seguro</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">💰</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Grátis Sempre</div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Seção de Funcionalidades */}
+      {/* Seção de Problemas que Resolve */}
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Tudo que você precisa para
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> gerenciar suas finanças</span>
+            Pare de Sofrer com
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Gestão Financeira</span>
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Funcionalidades profissionais pensadas para facilitar sua vida financeira
+            Resolva os problemas mais comuns de quem precisa controlar dinheiro pessoal e empresarial
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Card 1: Multi-Organização */}
+          {/* Card 1: Pessoal e Empresarial */}
           <Card className="card-hover border-0 shadow-lg">
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center mb-4">
                 <Users className="h-6 w-6 text-white" />
               </div>
-              <CardTitle>Multi-Organização</CardTitle>
+              <CardTitle>Dinheiro Pessoal e da Empresa Separados</CardTitle>
               <CardDescription>
-                Gerencie múltiplas organizações (pessoal e empresarial) em um único lugar,
-                com isolamento completo de dados.
+                Precisa gerenciar suas finanças pessoais E da sua empresa? Não precisa de dois sistemas.
+                Tudo em um lugar, mas completamente separado e organizado.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -170,10 +194,10 @@ export default async function HomePage() {
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center mb-4">
                 <Shield className="h-6 w-6 text-white" />
               </div>
-              <CardTitle>Máxima Segurança</CardTitle>
+              <CardTitle>Seus Dados São 100% Privados</CardTitle>
               <CardDescription>
-                Row Level Security (RLS) garantindo que cada organização veja apenas
-                seus próprios dados. Zero vazamento de informação.
+                Nunca mais se preocupe com vazamento de dados. Seus dados financeiros são completamente
+                privados e seguros. Ninguém além de você tem acesso.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -184,10 +208,10 @@ export default async function HomePage() {
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4">
                 <CreditCard className="h-6 w-6 text-white" />
               </div>
-              <CardTitle>Contas Bancárias</CardTitle>
+              <CardTitle>Veja Todas as Suas Contas em Um Lugar</CardTitle>
               <CardDescription>
-                Organize suas contas (bancárias, dinheiro, cartões) e tenha controle
-                total sobre cada fonte de recursos.
+                Cansado de entrar em vários apps de banco? Centralize tudo: contas bancárias,
+                dinheiro em espécie, cartões de crédito. Controle total em um só lugar.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -198,10 +222,10 @@ export default async function HomePage() {
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mb-4">
                 <BarChart3 className="h-6 w-6 text-white" />
               </div>
-              <CardTitle>Categorias Inteligentes</CardTitle>
+              <CardTitle>Descubra Para Onde Vai Seu Dinheiro</CardTitle>
               <CardDescription>
-                Organize receitas e despesas por categorias personalizadas.
-                Análise completa do seu fluxo financeiro.
+                Crie categorias personalizadas (alimentação, transporte, lazer...) e descubra
+                exatamente onde você mais gasta. Tome decisões mais inteligentes.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -212,10 +236,10 @@ export default async function HomePage() {
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center mb-4">
                 <TrendingUp className="h-6 w-6 text-white" />
               </div>
-              <CardTitle>Gestão de Transações</CardTitle>
+              <CardTitle>Registre Receitas e Despesas em Segundos</CardTitle>
               <CardDescription>
-                Registre todas as suas transações de forma simples e rápida.
-                Histórico completo com busca e filtros avançados.
+                Esqueça planilhas complicadas. Registre cada entrada e saída de forma rápida e simples.
+                Tenha histórico completo e busque qualquer transação em instantes.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -224,91 +248,141 @@ export default async function HomePage() {
           <Card className="card-hover border-0 shadow-lg">
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mb-4">
-                <Lock className="h-6 w-6 text-white" />
+                <Target className="h-6 w-6 text-white" />
               </div>
-              <CardTitle>Dashboard Completo</CardTitle>
+              <CardTitle>Visualize Tudo de Forma Clara</CardTitle>
               <CardDescription>
-                Visualize resumos financeiros, gráficos e métricas importantes
-                para tomar decisões inteligentes.
+                Dashboard visual com resumos financeiros e gráficos. Veja rapidamente
+                quanto você tem, quanto ganhou e quanto gastou. Controle total na palma da mão.
               </CardDescription>
             </CardHeader>
           </Card>
         </div>
+
+        {/* CTA intermediário */}
+        <div className="text-center mt-16">
+          <Link href="/register">
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 text-base px-8 py-6"
+            >
+              Começar Agora - É Grátis
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+        </div>
+        </div>
       </section>
 
-      {/* Seção de Benefícios */}
+      {/* Seção: Por que Começar Agora */}
       <section className="relative z-10 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Por que escolher o Nexus Finance?
+              Por Que Começar Hoje?
             </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              Quanto mais tempo você espera, mais dinheiro você pode estar perdendo de vista
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Benefício 1 */}
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
+                <Clock className="h-8 w-8 text-green-600 dark:text-green-400" />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  Isolamento Total de Dados
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Cada organização possui seus dados completamente isolados.
-                  Segurança garantida com Row Level Security (RLS).
-                </p>
-              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                Configure em 2 Minutos
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Não precisa ser técnico. Crie sua conta, adicione suas contas e comece a usar.
+                Sem complicação, sem treinamento.
+              </p>
             </div>
 
             {/* Benefício 2 */}
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
+                <DollarSign className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  Interface Moderna
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Design profissional e intuitivo. Fácil de usar, mesmo para
-                  quem não tem experiência com sistemas financeiros.
-                </p>
-              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                100% Gratuito Para Sempre
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Sem pegadinhas, sem período de teste. Totalmente gratuito, sempre.
+                Não pedimos cartão de crédito.
+              </p>
             </div>
 
             {/* Benefício 3 */}
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
+                <Zap className="h-8 w-8 text-purple-600 dark:text-purple-400" />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  Totalmente Responsivo
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Acesse de qualquer dispositivo - desktop, tablet ou celular.
-                  Seus dados sempre ao alcance.
-                </p>
-              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                Acesso Imediato
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Após criar sua conta, você já pode começar a usar. Não precisa esperar
+                aprovação ou configuração complexa.
+              </p>
             </div>
 
             {/* Benefício 4 */}
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mb-4">
+                <Star className="h-8 w-8 text-orange-600 dark:text-orange-400" />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  Tecnologia de Ponta
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Construído com Next.js 15, React 19 e Supabase.
-                  Performance e segurança em primeiro lugar.
-                </p>
-              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                Primeiros Usuários Tem Vantagens
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Você está entre os primeiros! Isso significa que suas sugestões serão ouvidas
+                e novas funcionalidades virão baseadas no que você precisa.
+              </p>
             </div>
+
+            {/* Benefício 5 */}
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-4">
+                <Shield className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                Seus Dados Seguros
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Dados criptografados e armazenados com segurança máxima.
+                Você pode excluir tudo a qualquer momento.
+              </p>
+            </div>
+
+            {/* Benefício 6 */}
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center mb-4">
+                <TrendingUp className="h-8 w-8 text-teal-600 dark:text-teal-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                Tome Decisões Melhores
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Quando você vê claramente para onde vai seu dinheiro, consegue economizar
+                mais e investir melhor. Comece hoje!
+              </p>
+            </div>
+          </div>
+
+          {/* CTA no meio */}
+          <div className="text-center mt-12">
+            <Link href="/register">
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 text-base px-8 py-6"
+              >
+                Quero Começar Agora
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -321,7 +395,9 @@ export default async function HomePage() {
               Pronto para começar?
             </CardTitle>
             <CardDescription className="text-white/90 text-lg">
-              Crie sua conta gratuitamente e comece a gerenciar suas finanças hoje mesmo.
+              Junte-se aos primeiros usuários e transforme a forma como você gerencia dinheiro.
+              <br />
+              <span className="font-semibold">100% Gratuito • Sem Cartão • Configure em 2 Minutos</span>
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col sm:flex-row gap-4 justify-center">
