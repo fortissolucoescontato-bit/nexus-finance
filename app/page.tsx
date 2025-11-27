@@ -29,6 +29,12 @@ import {
   Target,
   Sparkles,
   Star,
+  ShoppingBag,
+  MessageCircle,
+  Sparkles as SparklesIcon,
+  Package,
+  Heart,
+  Smile,
 } from 'lucide-react';
 
 /**
@@ -65,11 +71,11 @@ export default async function HomePage() {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-                <Wallet className="h-6 w-6 text-white" />
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-600 to-rose-600 flex items-center justify-center">
+                <ShoppingBag className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Nexus Finance
+              <span className="text-xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
+                Caderno de Fiado
               </span>
             </div>
 
@@ -102,18 +108,19 @@ export default async function HomePage() {
           {/* Título principal - Foco em benefício */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
             <span className="text-gray-900 dark:text-white">
-              Controle Suas Finanças
+              Seu Caderno de Fiado
             </span>
             <br />
-            <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Em Minutos, Não Em Horas
+            <span className="bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 bg-clip-text text-transparent">
+              Digital e Inteligente
             </span>
           </h1>
 
           {/* Subtítulo - Foco em problema/solução */}
           <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-6 leading-relaxed">
-            Pare de perder tempo com planilhas complicadas. Gerencie todas as suas finanças
-            pessoais e da sua empresa em um único lugar, de forma simples e segura.
+            Para <strong>Consultoras de Venda Direta</strong> e <strong>Sacoleiras</strong>. 
+            Controle seus fiados, vendas e gastos sem perder nenhum centavo. 
+            Cobre no WhatsApp com um clique!
           </p>
 
           {/* Sub-badge de valor */}
@@ -165,95 +172,95 @@ export default async function HomePage() {
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Pare de Sofrer com
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Gestão Financeira</span>
+            Feito Para
+            <span className="bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent"> Consultoras e Sacoleiras</span>
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Resolva os problemas mais comuns de quem precisa controlar dinheiro pessoal e empresarial
+            Resolva os problemas mais comuns: fiados esquecidos, controle de vendas e gastos, cobrança no WhatsApp
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Card 1: Pessoal e Empresarial */}
+          {/* Card 1: Caderno de Fiado Digital */}
           <Card className="card-hover border-0 shadow-lg">
             <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center mb-4">
-                <Users className="h-6 w-6 text-white" />
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center mb-4">
+                <ShoppingBag className="h-6 w-6 text-white" />
               </div>
-              <CardTitle>Dinheiro Pessoal e da Empresa Separados</CardTitle>
+              <CardTitle>Caderno de Fiado Digital</CardTitle>
               <CardDescription>
-                Precisa gerenciar suas finanças pessoais E da sua empresa? Não precisa de dois sistemas.
-                Tudo em um lugar, mas completamente separado e organizado.
+                Nunca mais perca um fiado! Registre todas as vendas a prazo e veja quem ainda não pagou.
+                O sistema mostra em destaque todos os valores pendentes.
               </CardDescription>
             </CardHeader>
           </Card>
 
-          {/* Card 2: Segurança */}
+          {/* Card 2: Cobrar no WhatsApp */}
           <Card className="card-hover border-0 shadow-lg">
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center mb-4">
-                <Shield className="h-6 w-6 text-white" />
+                <MessageCircle className="h-6 w-6 text-white" />
               </div>
-              <CardTitle>Seus Dados São 100% Privados</CardTitle>
+              <CardTitle>Cobrança no WhatsApp com Um Clique</CardTitle>
               <CardDescription>
-                Nunca mais se preocupe com vazamento de dados. Seus dados financeiros são completamente
-                privados e seguros. Ninguém além de você tem acesso.
+                Cliente não pagou? Clique em "Cobrar no Zap" e envie uma mensagem educada automaticamente.
+                Economize tempo e não esqueça de cobrar ninguém!
               </CardDescription>
             </CardHeader>
           </Card>
 
-          {/* Card 3: Gestão de Contas */}
+          {/* Card 3: Controle de Caixas */}
+          <Card className="card-hover border-0 shadow-lg">
+            <CardHeader>
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center mb-4">
+                <Wallet className="h-6 w-6 text-white" />
+              </div>
+              <CardTitle>Meus Caixas Organizados</CardTitle>
+              <CardDescription>
+                Separe sua carteira, conta bancária e caderno de fiado. Veja quanto tem em cada um
+                e controle tudo de forma simples e clara.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          {/* Card 4: Categorias Prontas */}
           <Card className="card-hover border-0 shadow-lg">
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4">
-                <CreditCard className="h-6 w-6 text-white" />
+                <Package className="h-6 w-6 text-white" />
               </div>
-              <CardTitle>Veja Todas as Suas Contas em Um Lugar</CardTitle>
+              <CardTitle>Categorias Prontas Para Você</CardTitle>
               <CardDescription>
-                Cansado de entrar em vários apps de banco? Centralize tudo: contas bancárias,
-                dinheiro em espécie, cartões de crédito. Controle total em um só lugar.
+                Já vem com categorias prontas: "Venda de Produto", "Boleto da Fábrica", "Frete/Entrega",
+                "Taxa Maquininha" e mais. Configure em segundos!
               </CardDescription>
             </CardHeader>
           </Card>
 
-          {/* Card 4: Categorias */}
+          {/* Card 5: Resumo do Negócio */}
           <Card className="card-hover border-0 shadow-lg">
             <CardHeader>
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mb-4">
-                <BarChart3 className="h-6 w-6 text-white" />
-              </div>
-              <CardTitle>Descubra Para Onde Vai Seu Dinheiro</CardTitle>
-              <CardDescription>
-                Crie categorias personalizadas (alimentação, transporte, lazer...) e descubra
-                exatamente onde você mais gasta. Tome decisões mais inteligentes.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          {/* Card 5: Transações */}
-          <Card className="card-hover border-0 shadow-lg">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center mb-4">
                 <TrendingUp className="h-6 w-6 text-white" />
               </div>
-              <CardTitle>Registre Receitas e Despesas em Segundos</CardTitle>
+              <CardTitle>Resumo do Seu Negócio</CardTitle>
               <CardDescription>
-                Esqueça planilhas complicadas. Registre cada entrada e saída de forma rápida e simples.
-                Tenha histórico completo e busque qualquer transação em instantes.
+                Veja de relance: quanto está para receber (fiado), quanto tem no bolso e qual foi
+                o lucro do mês. Tudo em um só lugar!
               </CardDescription>
             </CardHeader>
           </Card>
 
-          {/* Card 6: Dashboard */}
+          {/* Card 6: 100% Gratuito */}
           <Card className="card-hover border-0 shadow-lg">
             <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mb-4">
-                <Target className="h-6 w-6 text-white" />
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mb-4">
+                <Heart className="h-6 w-6 text-white" />
               </div>
-              <CardTitle>Visualize Tudo de Forma Clara</CardTitle>
+              <CardTitle>100% Gratuito Para Sempre</CardTitle>
               <CardDescription>
-                Dashboard visual com resumos financeiros e gráficos. Veja rapidamente
-                quanto você tem, quanto ganhou e quanto gastou. Controle total na palma da mão.
+                Sem pegadinhas, sem período de teste. Totalmente gratuito, sempre.
+                Feito com carinho para consultoras e sacoleiras que merecem o melhor!
               </CardDescription>
             </CardHeader>
           </Card>
@@ -394,7 +401,7 @@ export default async function HomePage() {
               Pronto para começar?
             </CardTitle>
             <CardDescription className="text-white/90 text-lg">
-              Junte-se aos primeiros usuários e transforme a forma como você gerencia dinheiro.
+              Feito especialmente para <strong>Consultoras de Venda Direta</strong> e <strong>Sacoleiras</strong>.
               <br />
               <span className="font-semibold">100% Gratuito • Sem Cartão • Configure em 2 Minutos</span>
             </CardDescription>
@@ -429,8 +436,8 @@ export default async function HomePage() {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
                 <Wallet className="h-5 w-5 text-white" />
               </div>
-              <span className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Nexus Finance
+              <span className="text-lg font-semibold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
+                Caderno de Fiado
               </span>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">

@@ -82,7 +82,7 @@ export default async function CategoriesPage() {
                 Categorias
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
-                Gerencie suas categorias de receitas e despesas
+                Organize seus tipos de venda e gasto
               </p>
             </div>
           </div>
@@ -113,12 +113,12 @@ export default async function CategoriesPage() {
               <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
                 <Tag className="h-5 w-5" />
               </div>
-              Receitas
+              Vendas/Entradas
             </CardTitle>
             <CardDescription className="text-base">
               {incomeCategories.length > 0
-                ? `${incomeCategories.length} categoria${incomeCategories.length > 1 ? 's' : ''} de receita`
-                : 'Nenhuma categoria de receita cadastrada'}
+                ? `${incomeCategories.length} categoria${incomeCategories.length > 1 ? 's' : ''} de venda`
+                : 'Nenhuma categoria de venda cadastrada'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -136,12 +136,12 @@ export default async function CategoriesPage() {
               <div className="p-2 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 text-white">
                 <Tag className="h-5 w-5" />
               </div>
-              Despesas
+              Gastos/Pagamentos
             </CardTitle>
             <CardDescription className="text-base">
               {expenseCategories.length > 0
-                ? `${expenseCategories.length} categoria${expenseCategories.length > 1 ? 's' : ''} de despesa`
-                : 'Nenhuma categoria de despesa cadastrada'}
+                ? `${expenseCategories.length} categoria${expenseCategories.length > 1 ? 's' : ''} de gasto`
+                : 'Nenhuma categoria de gasto cadastrada'}
             </CardDescription>
           </CardHeader>
           <CardContent>

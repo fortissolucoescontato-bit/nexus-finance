@@ -30,28 +30,28 @@ interface SidebarProps {
  */
 const menuItems = [
   {
-    title: 'Dashboard',
+    title: 'Resumo do Negócio',
     href: '/dashboard',
     icon: LayoutDashboard,
-    description: 'Visão geral financeira',
+    description: 'Visão geral do negócio',
   },
   {
-    title: 'Contas',
+    title: 'Meus Caixas',
     href: '/accounts',
     icon: Wallet,
-    description: 'Contas bancárias',
+    description: 'Carteira e contas',
   },
   {
     title: 'Categorias',
     href: '/categories',
     icon: Tag,
-    description: 'Receitas e despesas',
+    description: 'Tipos de venda e gasto',
   },
   {
-    title: 'Transações',
+    title: 'Vendas e Gastos',
     href: '/transactions',
     icon: Receipt,
-    description: 'Movimentações',
+    description: 'Caderno de fiado',
   },
   {
     title: 'Configurações',
@@ -89,10 +89,10 @@ export function AppSidebar({ userName }: SidebarProps) {
           </div>
           <div className="flex flex-col">
             <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Nexus Finance
+              Caderno de Fiado
             </span>
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              Gestão Financeira
+              Para Consultoras e Sacoleiras
             </span>
           </div>
         </div>

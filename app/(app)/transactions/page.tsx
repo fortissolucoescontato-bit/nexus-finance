@@ -112,10 +112,10 @@ export default async function TransactionsPage() {
                 <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-white shadow-lg">
                   <Receipt className="h-8 w-8" aria-hidden="true" />
                 </div>
-                Transações
+                Vendas e Gastos
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
-                Gerencie suas receitas e despesas
+                Caderno de fiado digital - Controle suas vendas e gastos
               </p>
             </div>
           </div>
@@ -128,10 +128,10 @@ export default async function TransactionsPage() {
               <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 text-white">
                 <Plus className="h-5 w-5" aria-hidden="true" />
               </div>
-              Nova Transação
+              Nova Venda ou Gasto
             </CardTitle>
             <CardDescription className="text-base">
-              Adicione uma nova transação financeira
+              Registre uma venda, um fiado ou um gasto do seu negócio
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -146,11 +146,11 @@ export default async function TransactionsPage() {
         {/* Lista de Transações */}
         <Card className="card-hover shadow-lg border-0 glass-effect">
           <CardHeader>
-            <CardTitle className="text-2xl">Suas Transações</CardTitle>
+            <CardTitle className="text-2xl">Seu Caderno de Fiado</CardTitle>
             <CardDescription className="text-base">
               {transactions && transactions.length > 0
-                ? `${transactions.length} transação${transactions.length > 1 ? 'ões' : ''} registrada${transactions.length > 1 ? 's' : ''}`
-                : 'Nenhuma transação registrada ainda'}
+                ? `${transactions.length} registro${transactions.length > 1 ? 's' : ''} de venda${transactions.length > 1 ? 's' : ''} e gasto${transactions.length > 1 ? 's' : ''}`
+                : 'Nenhuma venda ou gasto registrado ainda'}
             </CardDescription>
           </CardHeader>
           <CardContent>

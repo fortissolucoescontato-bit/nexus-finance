@@ -319,3 +319,151 @@ export async function updateOrganization(
     };
   }
 }
+
+/**
+ * Cria dados padrão (seed data) para o negócio
+ * 
+ * Cria categorias e contas padrão para consultoras e sacoleiras
+ * 
+ * @param organizationId - ID da organização
+ * @returns Promise<{ success: boolean; error?: string }>
+ */
+export async function createDefaultData(
+  organizationId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createServerActionClient();
+
+    // Verifica autenticação
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return {
+        success: false,
+        error: 'Usuário não autenticado',
+      };
+    }
+
+    // Verifica se o usuário tem acesso à organização
+    const { data: member, error: memberError } = await supabase
+      .from('organization_members')
+      .select('role')
+      .eq('organization_id', organizationId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (memberError || !member) {
+      return {
+        success: false,
+        error: 'Você não tem acesso a esta organização',
+      };
+    }
+
+    // Verifica se já existem categorias (para não duplicar)
+    const { data: existingCategories } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('organization_id', organizationId)
+      .limit(1);
+
+    // Verifica se já existem contas (para não duplicar)
+    const { data: existingAccounts } = await supabase
+      .from('accounts')
+      .select('id')
+      .eq('organization_id', organizationId)
+      .limit(1);
+
+    // Se já existem dados, não cria novamente
+    if (existingCategories && existingCategories.length > 0 && existingAccounts && existingAccounts.length > 0) {
+      return {
+        success: true, // Já tem dados, não precisa criar
+      };
+    }
+
+    // Cria categorias padrão (Receitas)
+    const incomeCategories = [
+      { name: 'Venda de Produto', type: 'income' as const, icon: 'shopping-bag' },
+      { name: 'Serviço', type: 'income' as const, icon: 'briefcase' },
+      { name: 'Entrada Parcelada', type: 'income' as const, icon: 'calendar' },
+    ];
+
+    // Cria categorias padrão (Despesas)
+    const expenseCategories = [
+      { name: 'Boleto da Fábrica (Reposição)', type: 'expense' as const, icon: 'file-text' },
+      { name: 'Frete/Entrega', type: 'expense' as const, icon: 'truck' },
+      { name: 'Taxa Maquininha', type: 'expense' as const, icon: 'credit-card' },
+      { name: 'Uso Pessoal (Retirada)', type: 'expense' as const, icon: 'wallet' },
+    ];
+
+    // Insere categorias de receita
+    if (!existingCategories || existingCategories.length === 0) {
+      for (const cat of incomeCategories) {
+        await supabase
+          .from('categories')
+          .insert({
+            name: cat.name,
+            type: cat.type,
+            organization_id: organizationId,
+            icon: cat.icon,
+          });
+      }
+    }
+
+    // Insere categorias de despesa
+    if (!existingCategories || existingCategories.length === 0) {
+      for (const cat of expenseCategories) {
+        await supabase
+          .from('categories')
+          .insert({
+            name: cat.name,
+            type: cat.type,
+            organization_id: organizationId,
+            icon: cat.icon,
+          });
+      }
+    }
+
+    // Cria contas padrão
+    if (!existingAccounts || existingAccounts.length === 0) {
+      // Conta "Carteira/Mão"
+      await supabase
+        .from('accounts')
+        .insert({
+          name: 'Carteira/Mão',
+          type: 'cash',
+          organization_id: organizationId,
+          balance: 0,
+        });
+
+      // Conta "Caderno de Fiado"
+      await supabase
+        .from('accounts')
+        .insert({
+          name: 'Caderno de Fiado',
+          type: 'credit', // Usa 'credit' para representar "a receber"
+          organization_id: organizationId,
+          balance: 0,
+        });
+    }
+
+    logger.debug('Dados padrão criados com sucesso', { organizationId });
+
+    // Revalida cache
+    revalidatePath('/dashboard');
+    revalidatePath('/categories');
+    revalidatePath('/accounts');
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    logger.error('Erro inesperado ao criar dados padrão', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Erro inesperado ao criar dados padrão',
+    };
+  }
+}

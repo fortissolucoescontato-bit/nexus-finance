@@ -105,6 +105,27 @@ export function CreateTransactionForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Campo Nome do Cliente em Destaque */}
+      <div className="space-y-2">
+        <Label htmlFor="transaction-description" className="text-base font-semibold">
+          Nome do Cliente ou Descrição
+        </Label>
+        <Input
+          id="transaction-description"
+          type="text"
+          placeholder="Ex: Maria Silva, João, Venda de produtos..."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          maxLength={500}
+          disabled={isLoading}
+          aria-label="Nome do cliente ou descrição"
+          className="text-base"
+        />
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Digite o nome da cliente ou uma descrição da venda/gasto
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="transaction-type">Tipo</Label>
@@ -120,13 +141,13 @@ export function CreateTransactionForm({
             required
             aria-label="Tipo de transação"
           >
-            <option value="expense">Despesa</option>
-            <option value="income">Receita</option>
+            <option value="income">Venda/Entrada</option>
+            <option value="expense">Gasto/Pagamento</option>
           </select>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="transaction-account">Conta</Label>
+          <Label htmlFor="transaction-account">Caixa</Label>
           <select
             id="transaction-account"
             value={accountId}
@@ -134,9 +155,9 @@ export function CreateTransactionForm({
             disabled={isLoading || accounts.length === 0}
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             required
-            aria-label="Conta"
+            aria-label="Caixa"
           >
-            <option value="">Selecione uma conta</option>
+            <option value="">Selecione um caixa</option>
             {accounts.map((account) => (
               <option key={account.id} value={account.id}>
                 {account.name}
@@ -145,7 +166,7 @@ export function CreateTransactionForm({
           </select>
           {accounts.length === 0 && (
             <p className="text-xs text-amber-600 dark:text-amber-400">
-              Crie uma conta primeiro em <a href="/accounts" className="underline">Contas</a>
+              Crie um caixa primeiro em <a href="/accounts" className="underline">Meus Caixas</a>
             </p>
           )}
         </div>
@@ -181,9 +202,14 @@ export function CreateTransactionForm({
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             aria-label="Status"
           >
-            <option value="paid">Pago</option>
-            <option value="pending">Pendente</option>
+            <option value="paid">Pago/Recebido</option>
+            <option value="pending">Fiado/Pendente</option>
           </select>
+          {type === 'income' && status === 'pending' && (
+            <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">
+              ⚠️ Esta venda ficará como FIADO (a receber)
+            </p>
+          )}
         </div>
       </div>
 
@@ -218,19 +244,6 @@ export function CreateTransactionForm({
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="transaction-description">Descrição (opcional)</Label>
-        <Input
-          id="transaction-description"
-          type="text"
-          placeholder="Ex: Compra no supermercado"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          maxLength={500}
-          disabled={isLoading}
-          aria-label="Descrição da transação"
-        />
-      </div>
 
       {error && (
         <div className="p-3 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
@@ -241,7 +254,7 @@ export function CreateTransactionForm({
       {success && (
         <div className="p-3 rounded-md bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
           <p className="text-sm text-green-800 dark:text-green-200">
-            Transação criada com sucesso!
+            {type === 'income' ? 'Venda registrada com sucesso!' : 'Gasto registrado com sucesso!'}
           </p>
         </div>
       )}
@@ -255,7 +268,7 @@ export function CreateTransactionForm({
         ) : (
           <>
             <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
-            Criar Transação
+            {type === 'income' ? 'Registrar Venda' : 'Registrar Gasto'}
           </>
         )}
       </Button>

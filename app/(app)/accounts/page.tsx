@@ -75,10 +75,10 @@ export default async function AccountsPage() {
                 <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg">
                   <Wallet className="h-8 w-8" aria-hidden="true" />
                 </div>
-                Contas
+                Meus Caixas
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
-                Gerencie suas contas bancárias, dinheiro e cartões
+                Gerencie seus caixas: carteira, conta bancária e caderno de fiado
               </p>
             </div>
           </div>
@@ -91,10 +91,10 @@ export default async function AccountsPage() {
               <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
                 <Plus className="h-5 w-5" aria-hidden="true" />
               </div>
-              Nova Conta
+              Novo Caixa
             </CardTitle>
             <CardDescription className="text-base">
-              Adicione uma nova conta financeira à sua organização
+              Adicione um novo caixa ao seu negócio (carteira, banco ou caderno de fiado)
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -105,11 +105,11 @@ export default async function AccountsPage() {
         {/* Lista de Contas */}
         <Card className="card-hover shadow-lg border-0 glass-effect">
           <CardHeader>
-            <CardTitle className="text-2xl">Suas Contas</CardTitle>
+            <CardTitle className="text-2xl">Seus Caixas</CardTitle>
             <CardDescription className="text-base">
               {accounts && accounts.length > 0
-                ? `${accounts.length} conta${accounts.length > 1 ? 's' : ''} cadastrada${accounts.length > 1 ? 's' : ''}`
-                : 'Nenhuma conta cadastrada ainda'}
+                ? `${accounts.length} caixa${accounts.length > 1 ? 's' : ''} cadastrado${accounts.length > 1 ? 's' : ''}`
+                : 'Nenhum caixa cadastrado ainda'}
             </CardDescription>
           </CardHeader>
           <CardContent>

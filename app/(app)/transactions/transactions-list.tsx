@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Edit2, Trash2, ArrowUpCircle, ArrowDownCircle, Receipt } from 'lucide-react';
+import { Edit2, Trash2, ArrowUpCircle, ArrowDownCircle, Receipt, MessageCircle, Filter } from 'lucide-react';
 import { deleteTransaction } from './actions';
 import { LoadingSpinner } from '@/components/ui/loading';
 import { logger } from '@/lib/logger';
@@ -74,6 +74,9 @@ export function TransactionsList({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   // Estado para controlar qual transação está sendo editada
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  // Estado para filtros
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'paid'>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all');
 
   const handleDelete = async (transactionId: string) => {
     if (!confirm('Tem certeza que deseja deletar esta transação? Esta ação não pode ser desfeita.')) {
@@ -109,12 +112,19 @@ export function TransactionsList({
     setEditingTransaction(null);
   };
 
+  // Filtra transações baseado nos filtros selecionados
+  const filteredTransactions = transactions.filter((transaction) => {
+    const matchesStatus = statusFilter === 'all' || transaction.status === statusFilter;
+    const matchesType = typeFilter === 'all' || transaction.type === typeFilter;
+    return matchesStatus && matchesType;
+  });
+
   if (transactions.length === 0) {
     return (
       <div className="text-center py-12">
         <Receipt className="h-12 w-12 mx-auto text-gray-400 dark:text-gray-500 mb-4" aria-hidden="true" />
         <p className="text-gray-600 dark:text-gray-400">
-          Nenhuma transação registrada ainda. Crie sua primeira transação acima!
+          Nenhuma venda ou gasto registrado ainda. Registre sua primeira venda ou gasto acima!
         </p>
       </div>
     );
@@ -141,9 +151,60 @@ export function TransactionsList({
         </Modal>
       )}
 
+      {/* Filtros */}
+      <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+            <Filter className="h-4 w-4" />
+            <span>Filtros:</span>
+          </div>
+          
+          {/* Filtro por Status */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-600 dark:text-gray-400">Status:</label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'pending' | 'paid')}
+              className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+            >
+              <option value="all">Todos</option>
+              <option value="pending">Fiado/Pendente</option>
+              <option value="paid">Pago/Recebido</option>
+            </select>
+          </div>
+
+          {/* Filtro por Tipo */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-600 dark:text-gray-400">Tipo:</label>
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value as 'all' | 'income' | 'expense')}
+              className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+            >
+              <option value="all">Todos</option>
+              <option value="income">Vendas/Entradas</option>
+              <option value="expense">Gastos/Pagamentos</option>
+            </select>
+          </div>
+
+          {/* Contador de resultados */}
+          <div className="ml-auto text-sm text-gray-500 dark:text-gray-400">
+            {filteredTransactions.length} de {transactions.length} registro{transactions.length !== 1 ? 's' : ''}
+          </div>
+        </div>
+      </div>
+
       {/* Lista de Transações */}
       <div className="space-y-4">
-        {transactions.map((transaction) => {
+        {filteredTransactions.length === 0 ? (
+          <div className="text-center py-12">
+            <Receipt className="h-12 w-12 mx-auto text-gray-400 dark:text-gray-500 mb-4" aria-hidden="true" />
+            <p className="text-gray-600 dark:text-gray-400">
+              Nenhuma transação encontrada com os filtros selecionados.
+            </p>
+          </div>
+        ) : (
+          filteredTransactions.map((transaction) => {
         const isDeleting = deletingId === transaction.id;
         const isIncome = transaction.type === 'income';
         const isPending = transaction.status === 'pending';
@@ -179,7 +240,12 @@ export function TransactionsList({
                       }`}>
                         {isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}
                       </h3>
-                      {isPending && (
+                      {isPending && isIncome && (
+                        <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-md animate-pulse">
+                          🔴 FIADO (A Receber)
+                        </span>
+                      )}
+                      {isPending && !isIncome && (
                         <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-md">
                           Pendente
                         </span>
@@ -194,6 +260,28 @@ export function TransactionsList({
                   </div>
                 </div>
                 <div className="flex gap-2">
+                  {/* Botão WhatsApp para Fiado (Apenas receitas pendentes) */}
+                  {isPending && isIncome && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        // Formata mensagem para WhatsApp
+                        const amount = formatCurrency(transaction.amount);
+                        const description = transaction.description || 'venda';
+                        const message = encodeURIComponent(
+                          `Olá! Vi aqui no meu sistema que ficou pendente R$ ${amount} referente a ${description}. Podemos agendar o pagamento? Obrigada!`
+                        );
+                        // Abre WhatsApp Web/App
+                        window.open(`https://wa.me/?text=${message}`, '_blank');
+                      }}
+                      className="bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30 border-green-300 dark:border-green-700"
+                      aria-label="Cobrar no WhatsApp"
+                    >
+                      <MessageCircle className="h-4 w-4 text-green-600 dark:text-green-400 mr-1" aria-hidden="true" />
+                      <span className="text-xs font-medium text-green-700 dark:text-green-300">Cobrar no Zap</span>
+                    </Button>
+                  )}
                   {/* Botão de Editar */}
                   <Button
                     size="sm"
@@ -225,7 +313,8 @@ export function TransactionsList({
             </CardContent>
           </Card>
         );
-      })}
+        })
+        )}
       </div>
     </>
   );

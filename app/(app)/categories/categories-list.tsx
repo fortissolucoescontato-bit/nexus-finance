@@ -112,8 +112,8 @@ export function CategoriesList({ categories, organizationId }: CategoriesListPro
                       onChange={(e) => setEditType(e.target.value as 'income' | 'expense')}
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     >
-                      <option value="expense">Despesa</option>
-                      <option value="income">Receita</option>
+                      <option value="income">Venda/Entrada</option>
+                      <option value="expense">Gasto/Pagamento</option>
                     </select>
                   </div>
                   <div className="space-y-2">
@@ -158,7 +158,7 @@ export function CategoriesList({ categories, organizationId }: CategoriesListPro
                         {category.name}
                       </h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {category.type === 'income' ? 'Receita' : 'Despesa'}
+                        {category.type === 'income' ? 'Venda/Entrada' : 'Gasto/Pagamento'}
                         {category.icon && ` • ${category.icon}`}
                       </p>
                     </div>

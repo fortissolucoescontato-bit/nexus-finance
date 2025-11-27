@@ -42,11 +42,11 @@ function formatCurrency(cents: number): string {
 function getAccountTypeInfo(type: 'bank' | 'cash' | 'credit') {
   switch (type) {
     case 'bank':
-      return { icon: Wallet, label: 'Banco' };
+      return { icon: Wallet, label: 'Conta Bancária' };
     case 'cash':
-      return { icon: Banknote, label: 'Dinheiro' };
+      return { icon: Banknote, label: 'Carteira/Dinheiro' };
     case 'credit':
-      return { icon: CreditCard, label: 'Cartão de Crédito' };
+      return { icon: CreditCard, label: 'Caderno de Fiado' };
   }
 }
 
@@ -99,7 +99,7 @@ export function AccountsList({ accounts, organizationId }: AccountsListProps) {
       <div className="text-center py-12">
         <Wallet className="h-12 w-12 mx-auto text-gray-400 dark:text-gray-500 mb-4" aria-hidden="true" />
         <p className="text-gray-600 dark:text-gray-400">
-          Nenhuma conta cadastrada ainda. Crie sua primeira conta acima!
+          Nenhum caixa cadastrado ainda. Crie seu primeiro caixa acima!
         </p>
       </div>
     );
@@ -135,9 +135,9 @@ export function AccountsList({ accounts, organizationId }: AccountsListProps) {
                       onChange={(e) => setEditType(e.target.value as 'bank' | 'cash' | 'credit')}
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     >
-                      <option value="bank">Banco</option>
-                      <option value="cash">Dinheiro</option>
-                      <option value="credit">Cartão de Crédito</option>
+                      <option value="cash">Carteira/Dinheiro</option>
+                      <option value="bank">Conta Bancária</option>
+                      <option value="credit">Caderno de Fiado</option>
                     </select>
                   </div>
                   <div className="flex gap-2">

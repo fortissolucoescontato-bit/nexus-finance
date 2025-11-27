@@ -14,14 +14,15 @@ import { createServerComponentClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wallet, Tag, Receipt, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
+import { Wallet, Tag, Receipt, TrendingUp, TrendingDown, ArrowRight, MessageCircle, ShoppingBag, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
+import { OnboardingWrapper } from './onboarding-wrapper';
 
 export const metadata: Metadata = {
-  title: 'Dashboard',
-  description: 'Painel de controle do Nexus Finance',
+  title: 'Resumo do Negócio',
+  description: 'Resumo financeiro do seu negócio',
 };
 
 
@@ -106,32 +107,70 @@ export default async function DashboardPage() {
   // Extrai o nome do perfil ou usa o email como fallback
   const userName = profile?.full_name || user.email || 'Usuário';
 
+  // Cria dados padrão se necessário (seed data)
+  // Isso garante que novos usuários tenham categorias e contas padrão
+  let isNewUser = false;
+  if (personalOrg?.id) {
+    // Verifica se já existem categorias (para detectar novo usuário)
+    const { data: existingCategories } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('organization_id', personalOrg.id)
+      .limit(1);
+
+    // Se não tem categorias, é um novo usuário
+    isNewUser = !existingCategories || existingCategories.length === 0;
+
+    // Importa a função dinamicamente para evitar problemas de importação circular
+    const { createDefaultData } = await import('./actions');
+    await createDefaultData(personalOrg.id);
+  }
+
   // Busca estatísticas financeiras (apenas se tiver organização)
-  let totalBalance = 0;
-  let totalIncome = 0;
-  let totalExpenses = 0;
-  let accountsCount = 0;
-  let categoriesCount = 0;
-  let transactionsCount = 0;
+  let totalPendingIncome = 0; // Total a Receber (Fiado)
+  let totalCashBalance = 0; // Dinheiro no Bolso (cash + bank)
+  let monthlyProfit = 0; // Lucro do Mês (Receitas Pagas - Despesas Pagas)
   let recentTransactions: any[] = [];
 
   if (personalOrg?.id) {
+    // Busca contas para calcular "Dinheiro no Bolso"
     const { data: accounts } = await supabase
       .from('accounts')
-      .select('balance')
-      .eq('organization_id', personalOrg.id);
+      .select('balance, type')
+      .eq('organization_id', personalOrg.id)
+      .in('type', ['cash', 'bank']); // Apenas dinheiro e banco
 
-    const { data: categories } = await supabase
-      .from('categories')
-      .select('id')
-      .eq('organization_id', personalOrg.id);
+    // Calcula "Dinheiro no Bolso" (soma de cash + bank)
+    totalCashBalance = accounts?.reduce((sum, acc) => sum + (acc.balance || 0), 0) || 0;
 
-    const { data: transactions } = await supabase
+    // Busca transações pendentes (FIADO - A Receber)
+    const { data: pendingTransactions } = await supabase
       .from('transactions')
-      .select('amount, type, status')
+      .select('amount, type')
+      .eq('organization_id', personalOrg.id)
+      .eq('status', 'pending')
+      .eq('type', 'income'); // Apenas receitas pendentes
+
+    // Calcula "Total a Receber (Fiado)"
+    totalPendingIncome = pendingTransactions?.reduce((sum, t) => sum + Math.abs(t.amount || 0), 0) || 0;
+
+    // Busca transações pagas do mês atual para calcular lucro
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    const { data: paidTransactions } = await supabase
+      .from('transactions')
+      .select('amount, type')
       .eq('organization_id', personalOrg.id)
       .eq('status', 'paid')
-      .limit(100);
+      .gte('date', firstDayOfMonth.toISOString().split('T')[0])
+      .lte('date', lastDayOfMonth.toISOString().split('T')[0]);
+
+    // Calcula "Lucro do Mês" (Receitas Pagas - Despesas Pagas)
+    const totalIncomePaid = paidTransactions?.filter(t => t.type === 'income').reduce((sum, t) => sum + Math.abs(t.amount || 0), 0) || 0;
+    const totalExpensesPaid = paidTransactions?.filter(t => t.type === 'expense').reduce((sum, t) => sum + Math.abs(t.amount || 0), 0) || 0;
+    monthlyProfit = totalIncomePaid - totalExpensesPaid;
 
     // Busca transações recentes para exibir no dashboard
     const { data: recentTransactionsData } = await supabase
@@ -168,96 +207,91 @@ export default async function DashboardPage() {
   }
   
   return (
-    <div className="min-h-screen p-6 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <>
+      {/* Onboarding Modal para novos usuários */}
+      <OnboardingWrapper isNewUser={isNewUser} />
+      
+      <div className="min-h-screen p-6 md:p-8">
+        <div className="max-w-7xl mx-auto space-y-8">
         {/* ========== HEADER DO DASHBOARD ========== */}
         <div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Dashboard
+            Resumo do Negócio
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
-            Bem-vindo de volta, <span className="font-semibold text-gray-900 dark:text-white">{userName.split(' ')[0]}</span>! 👋
+            Olá, <span className="font-semibold text-gray-900 dark:text-white">{userName.split(' ')[0]}</span>! Veja como está seu negócio hoje 👋
           </p>
         </div>
 
-        {/* ========== SEÇÃO: RESUMO FINANCEIRO ========== */}
+        {/* ========== SEÇÃO: RESUMO DO NEGÓCIO ========== */}
         {personalOrg && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Resumo Financeiro</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Resumo do Negócio</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Saldo Total */}
-            <Card className="card-hover border-0 shadow-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Card 1: Total a Receber (Fiado) - DESTAQUE */}
+            <Card className="card-hover border-0 shadow-lg bg-gradient-to-br from-orange-500 to-red-600 text-white">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-blue-100 text-sm font-medium mb-1">Saldo Total</p>
+                    <p className="text-orange-100 text-sm font-medium mb-1">Total a Receber (Fiado)</p>
                     <p className="text-3xl font-bold">
                       {new Intl.NumberFormat('pt-BR', {
                         style: 'currency',
                         currency: 'BRL',
-                      }).format(totalBalance / 100)}
+                      }).format(totalPendingIncome / 100)}
                     </p>
+                    <p className="text-orange-100 text-xs mt-2">Clientes que ainda não pagaram</p>
                   </div>
                   <div className="p-3 rounded-full bg-white/20 backdrop-blur-sm">
-                    <Wallet className="h-6 w-6" />
+                    <MessageCircle className="h-6 w-6" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Receitas */}
+            {/* Card 2: Dinheiro no Bolso */}
             <Card className="card-hover border-0 shadow-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-emerald-100 text-sm font-medium mb-1">Receitas</p>
+                    <p className="text-emerald-100 text-sm font-medium mb-1">Dinheiro no Bolso</p>
                     <p className="text-3xl font-bold">
                       {new Intl.NumberFormat('pt-BR', {
                         style: 'currency',
                         currency: 'BRL',
-                      }).format(totalIncome / 100)}
+                      }).format(totalCashBalance / 100)}
                     </p>
+                    <p className="text-emerald-100 text-xs mt-2">Carteira + Conta Bancária</p>
                   </div>
                   <div className="p-3 rounded-full bg-white/20 backdrop-blur-sm">
-                    <Receipt className="h-6 w-6" />
+                    <DollarSign className="h-6 w-6" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Despesas */}
-            <Card className="card-hover border-0 shadow-lg bg-gradient-to-br from-red-500 to-rose-600 text-white">
+            {/* Card 3: Lucro do Mês */}
+            <Card className={`card-hover border-0 shadow-lg text-white ${
+              monthlyProfit >= 0 
+                ? 'bg-gradient-to-br from-blue-500 to-indigo-600' 
+                : 'bg-gradient-to-br from-red-500 to-rose-600'
+            }`}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-red-100 text-sm font-medium mb-1">Despesas</p>
+                    <p className="text-white/90 text-sm font-medium mb-1">Lucro do Mês</p>
                     <p className="text-3xl font-bold">
                       {new Intl.NumberFormat('pt-BR', {
                         style: 'currency',
                         currency: 'BRL',
-                      }).format(totalExpenses / 100)}
+                      }).format(monthlyProfit / 100)}
                     </p>
+                    <p className="text-white/80 text-xs mt-2">Vendas - Gastos (este mês)</p>
                   </div>
                   <div className="p-3 rounded-full bg-white/20 backdrop-blur-sm">
-                    <Tag className="h-6 w-6" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Contas */}
-            <Card className="card-hover border-0 shadow-lg bg-gradient-to-br from-purple-500 to-pink-600 text-white">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-purple-100 text-sm font-medium mb-1">Contas</p>
-                    <p className="text-3xl font-bold">{accountsCount}</p>
-                    <p className="text-purple-100 text-xs mt-1">{transactionsCount} transações</p>
-                  </div>
-                  <div className="p-3 rounded-full bg-white/20 backdrop-blur-sm">
-                    <Wallet className="h-6 w-6" />
+                    <TrendingUp className="h-6 w-6" />
                   </div>
                 </div>
               </CardContent>
@@ -266,11 +300,11 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        {/* ========== SEÇÃO: TRANSAÇÕES RECENTES ========== */}
+        {/* ========== SEÇÃO: VENDAS E GASTOS RECENTES ========== */}
         {personalOrg && recentTransactions.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Transações Recentes</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Vendas e Gastos Recentes</h2>
               <Link href="/transactions">
                 <Button variant="ghost" size="sm" className="text-blue-600 dark:text-blue-400">
                   Ver Todas
@@ -335,6 +369,7 @@ export default async function DashboardPage() {
 
       </div>
     </div>
+    </>
   );
 }
 

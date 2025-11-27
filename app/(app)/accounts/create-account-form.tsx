@@ -57,34 +57,34 @@ export function CreateAccountForm({ organizationId }: CreateAccountFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="account-name">Nome da Conta</Label>
+        <Label htmlFor="account-name">Nome do Caixa</Label>
         <Input
           id="account-name"
           type="text"
-          placeholder="Ex: Conta Corrente Nubank"
+          placeholder="Ex: Carteira/Mão, Nubank, Caderno de Fiado"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
           minLength={2}
           maxLength={100}
           disabled={isLoading}
-          aria-label="Nome da conta"
+          aria-label="Nome do caixa"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="account-type">Tipo de Conta</Label>
+        <Label htmlFor="account-type">Tipo de Caixa</Label>
         <select
           id="account-type"
           value={type}
           onChange={(e) => setType(e.target.value as 'bank' | 'cash' | 'credit')}
           disabled={isLoading}
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          aria-label="Tipo de conta"
+          aria-label="Tipo de caixa"
         >
-          <option value="bank">Banco</option>
-          <option value="cash">Dinheiro</option>
-          <option value="credit">Cartão de Crédito</option>
+          <option value="cash">Carteira/Dinheiro</option>
+          <option value="bank">Conta Bancária</option>
+          <option value="credit">Caderno de Fiado (A Receber)</option>
         </select>
       </div>
 
@@ -97,7 +97,7 @@ export function CreateAccountForm({ organizationId }: CreateAccountFormProps) {
       {success && (
         <div className="p-3 rounded-md bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
           <p className="text-sm text-green-800 dark:text-green-200">
-            Conta criada com sucesso!
+            Caixa criado com sucesso!
           </p>
         </div>
       )}
@@ -111,7 +111,7 @@ export function CreateAccountForm({ organizationId }: CreateAccountFormProps) {
         ) : (
           <>
             <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
-            Criar Conta
+            Criar Caixa
           </>
         )}
       </Button>
