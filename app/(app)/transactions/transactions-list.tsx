@@ -11,6 +11,8 @@ import { Edit2, Trash2, ArrowUpCircle, ArrowDownCircle, Receipt } from 'lucide-r
 import { deleteTransaction } from './actions';
 import { LoadingSpinner } from '@/components/ui/loading';
 import { logger } from '@/lib/logger';
+import { Modal } from '@/components/ui/modal';
+import { EditTransactionForm } from './edit-transaction-form';
 
 interface Transaction {
   id: string;
@@ -68,6 +70,8 @@ export function TransactionsList({
   categories 
 }: TransactionsListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  // Estado para controlar qual transação está sendo editada
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   const handleDelete = async (transactionId: string) => {
     if (!confirm('Tem certeza que deseja deletar esta transação? Esta ação não pode ser desfeita.')) {
@@ -86,6 +90,23 @@ export function TransactionsList({
     }
   };
 
+  // Handler para abrir modal de edição
+  const handleEdit = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+  };
+
+  // Handler para fechar modal após sucesso
+  const handleEditSuccess = () => {
+    setEditingTransaction(null);
+    // Recarrega a página para mostrar as alterações
+    window.location.reload();
+  };
+
+  // Handler para cancelar edição
+  const handleEditCancel = () => {
+    setEditingTransaction(null);
+  };
+
   if (transactions.length === 0) {
     return (
       <div className="text-center py-12">
@@ -98,8 +119,29 @@ export function TransactionsList({
   }
 
   return (
-    <div className="space-y-4">
-      {transactions.map((transaction) => {
+    <>
+      {/* Modal de Edição */}
+      {editingTransaction && (
+        <Modal
+          isOpen={!!editingTransaction}
+          onClose={handleEditCancel}
+          title="Editar Transação"
+          description="Altere os dados da transação abaixo"
+          size="lg"
+        >
+          <EditTransactionForm
+            transaction={editingTransaction}
+            accounts={accounts}
+            categories={categories}
+            onSuccess={handleEditSuccess}
+            onCancel={handleEditCancel}
+          />
+        </Modal>
+      )}
+
+      {/* Lista de Transações */}
+      <div className="space-y-4">
+        {transactions.map((transaction) => {
         const isDeleting = deletingId === transaction.id;
         const isIncome = transaction.type === 'income';
         const isPending = transaction.status === 'pending';
@@ -150,12 +192,25 @@ export function TransactionsList({
                   </div>
                 </div>
                 <div className="flex gap-2">
+                  {/* Botão de Editar */}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleEdit(transaction)}
+                    disabled={isDeleting}
+                    aria-label={`Editar transação`}
+                    className="hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                  >
+                    <Edit2 className="h-4 w-4 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                  </Button>
+                  {/* Botão de Deletar */}
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleDelete(transaction.id)}
                     disabled={isDeleting}
                     aria-label={`Deletar transação`}
+                    className="hover:bg-red-50 dark:hover:bg-red-900/20"
                   >
                     {isDeleting ? (
                       <LoadingSpinner size="sm" />
@@ -169,7 +224,8 @@ export function TransactionsList({
           </Card>
         );
       })}
-    </div>
+      </div>
+    </>
   );
 }
 

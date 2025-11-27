@@ -255,6 +255,57 @@ export async function updateTransaction(
       };
     }
 
+    // Lógica de atualização do saldo da conta
+    // Se o valor, status ou conta mudaram, precisamos atualizar os saldos
+    const needsBalanceUpdate = 
+      updates.amount !== undefined || 
+      updates.status !== undefined || 
+      updates.accountId !== undefined ||
+      updates.type !== undefined;
+
+    if (needsBalanceUpdate) {
+      // Busca a conta antiga para reverter o saldo
+      const { data: oldAccount, error: oldAccountError } = await supabase
+        .from('accounts')
+        .select('balance')
+        .eq('id', currentTransaction.account_id)
+        .single();
+
+      if (!oldAccountError && oldAccount && currentTransaction.status === 'paid') {
+        // Reverte o valor antigo da conta antiga (se estava paga)
+        const revertedBalance = oldAccount.balance - currentTransaction.amount;
+        await supabase
+          .from('accounts')
+          .update({ balance: revertedBalance })
+          .eq('id', currentTransaction.account_id);
+      }
+
+      // Determina a conta nova (pode ser a mesma ou diferente)
+      const newAccountId = updates.accountId || currentTransaction.account_id;
+      const newStatus = updates.status !== undefined ? updates.status : currentTransaction.status;
+      const newType = updates.type || currentTransaction.type;
+      const newAmount = updates.amount !== undefined 
+        ? (newType === 'income' ? Math.abs(updates.amount) : -Math.abs(updates.amount))
+        : currentTransaction.amount;
+
+      // Se a nova transação está paga, aplica o novo valor na conta nova
+      if (newStatus === 'paid') {
+        const { data: newAccount, error: newAccountError } = await supabase
+          .from('accounts')
+          .select('balance')
+          .eq('id', newAccountId)
+          .single();
+
+        if (!newAccountError && newAccount) {
+          const updatedBalance = newAccount.balance + newAmount;
+          await supabase
+            .from('accounts')
+            .update({ balance: updatedBalance })
+            .eq('id', newAccountId);
+        }
+      }
+    }
+
     // Atualiza a transação
     const { error: updateError } = await supabase
       .from('transactions')
@@ -268,8 +319,6 @@ export async function updateTransaction(
         error: updateError.message || 'Erro ao atualizar transação',
       };
     }
-
-    // TODO: Atualizar saldo da conta se necessário (lógica complexa de reverter e aplicar novo valor)
 
     logger.debug('Transação atualizada com sucesso', { transactionId });
 
